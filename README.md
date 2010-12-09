@@ -89,7 +89,7 @@ Danbooru API commands:
 	* `-tag`: marks a tag as undesired
 	* `rating:[s,q,e]`: looks for images rated `s`afe, `q`uestionable, or `e`xplicit
 - `loli`: returns a random loli image
-- `safeloli|sloli`: returns a random work-safe loli image
+- `sloli`: returns a random work-safe loli image
 - `futa`: returns a random futa image
 
 Commands that don't require access behave the same when sent to a channel the bot is in and when whispered to the bot.

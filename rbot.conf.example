@@ -1,0 +1,17 @@
+[DEFAULT]
+trigger: !
+
+[Rizon]
+server: irc.rizon.net
+nick: rbot
+user: rbot
+ssl: true
+nickserv: identify_password
+autoconnect: true
+roman: ja
+
+[Rizon #raylu]
+autojoin: true
+
+[Rizon #vn-meta]
+autojoin: false

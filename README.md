@@ -82,6 +82,17 @@ Google API commands:
 - `roman text`: translate text into romaji (see rbot.conf.example)
 - `calc 1 usd in yen`: convert 1 USD to Japanese yen
 
+Danbooru API commands:
+
+- `booru tag [tag2 tag3 ...]`: search the boorus for images containing any of the listed tags.
+-- Tag Syntax
+--- `+tag`: marks a tag as mandatory
+--- `-tag`: marks a tag as undesired
+--- `rating:[s,q,e]`: looks for images rated `s`afe, `q`uestionable, or `e`xplicit
+- `loli`: returns a random loli image
+- `safeloli|sloli`: returns a random work-safe loli image
+- `futa`: returns a random futa image
+
 Commands that don't require access behave the same when sent to a channel the bot is in and when whispered to the bot.
 
 Commands that require access are listed above as if they were sent to a channel. When sent as a whisper, the first argument must be a channel name.

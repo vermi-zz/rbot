@@ -142,7 +142,6 @@ func calc(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	output = html.UnescapeString(output)
 	output = strings.Replace(output, "<sup>", "^(", -1)
 	output = strings.Replace(output, "</sup>", ")", -1)
-	output = strings.Replace(output, "�", ",", -1) // ew
 	say(conn, target, output)
 }
 

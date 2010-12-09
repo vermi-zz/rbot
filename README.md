@@ -85,10 +85,10 @@ Google API commands:
 Danbooru API commands:
 
 - `booru tag [tag2 tag3 ...]`: search the boorus for images containing any of the listed tags.
--- Tag Syntax
---- `+tag`: marks a tag as mandatory
---- `-tag`: marks a tag as undesired
---- `rating:[s,q,e]`: looks for images rated `s`afe, `q`uestionable, or `e`xplicit
+> Tag Syntax
+> - `+tag`: marks a tag as mandatory
+> - `-tag`: marks a tag as undesired
+> - `rating:[s,q,e]`: looks for images rated `s`afe, `q`uestionable, or `e`xplicit
 - `loli`: returns a random loli image
 - `safeloli|sloli`: returns a random work-safe loli image
 - `futa`: returns a random futa image

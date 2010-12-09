@@ -168,6 +168,9 @@ func calc(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if err != nil {
 		say(conn, target, "%s: Error while decoding.", nick.Nick); return
 	}
-	output = html.UnescapeString(output) // see go issue 1233
+	output = html.UnescapeString(output)
+	output = strings.Replace(output, "<sup>", "^", -1)
+	output = strings.Replace(output, "</sup>", "", -1)
+	output = strings.Replace(output, "�", ",", -1) // ew
 	say(conn, target, output)
 }

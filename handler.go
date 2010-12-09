@@ -44,6 +44,13 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"tr": translate,
 	"roman": roman,
 	"calc": calc,
+
+	// booru
+	"safeloli": sloli,
+	"sloli": sloli,
+	"futa": futa,
+	"loli": loli,
+	"booru": booru,
 }
 
 func handlePrivmsg(conn *irc.Conn, line *irc.Line) {

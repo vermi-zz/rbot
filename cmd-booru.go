@@ -14,8 +14,9 @@ func scrape(conn *irc.Conn, channel string, site string) (status string) {
 	}
 
         type SecondResponse struct {
-                File_url string "attr"
+                Page_url string "attr"
                 Rating string "attr"
+		Site_name string "attr"
         }
 
         type FirstResponse struct {
@@ -41,7 +42,7 @@ func scrape(conn *irc.Conn, channel string, site string) (status string) {
 		case url.Response.Response.Rating == "0": rating = "[Not Rated] "
         }
 
-        result := fmt.Sprintf("%s%s", rating, url.Response.Response.File_url)
+        result := fmt.Sprintf("%s%s", rating, url.Response.Response.Page_url)
 
         say(conn, channel, result)
 
@@ -85,6 +86,11 @@ func futa(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 }
 
 func loli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
+	if channel == "#bakabt" {
+		sloli(conn, nick, "", channel)
+		return
+	}
+
         tag = "loli*"
         tag = http.URLEscape(tag)
         site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)

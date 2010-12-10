@@ -53,7 +53,7 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"booru": booru,
 
 	// QDB
-	"quote": addquote,
+//	"quote": addquote,
 }
 
 func handlePrivmsg(conn *irc.Conn, line *irc.Line) {

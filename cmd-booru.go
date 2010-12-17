@@ -14,10 +14,9 @@ func scrape(conn *irc.Conn, channel string, site string) (status string) {
 	}
 
         type SecondResponse struct {
-                Page_url string "attr"
+                File_url string "attr"
                 Rating string "attr"
-		Site_name string "attr"
-        }
+	 }
 
         type FirstResponse struct {
                 Response SecondResponse
@@ -42,7 +41,7 @@ func scrape(conn *irc.Conn, channel string, site string) (status string) {
 		case url.Response.Response.Rating == "0": rating = "[Not Rated] "
         }
 
-        result := fmt.Sprintf("%s%s", rating, url.Response.Response.Page_url)
+        result := fmt.Sprintf("%s%s", rating, url.Response.Response.File_url)
 
         say(conn, channel, result)
 
@@ -52,12 +51,13 @@ func scrape(conn *irc.Conn, channel string, site string) (status string) {
 func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	if tag == "" {
 		channel = nick.Nick
-		say(conn, channel, "Syntax: !booru tag [tag2 tag3 ...]; you can use +tag, -tag, fav:, and rating:[s,q,e]")
+		say(conn, channel, "Syntax: !booru tag [tag2 tag3 ...]; you can use +tag, -tag, and rating:[s,q,e]")
 		say(conn, channel, "Example: !booru +loli +pantsu -blonde* rating:s")
 		say(conn, channel, "Results could take up to 20 seconds to appear.")
 		return
 	}
 
+	tag = fmt.Sprintf("%s -site:moe", tag)
 	tag = http.URLEscape(tag)
 	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
@@ -73,7 +73,7 @@ func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 }
 
 func futa(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
-	tag = "futa futanari -futaba*"
+	tag = "futa futanari -futaba* -site:moe"
 	tag = http.URLEscape(tag)
 	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
@@ -91,7 +91,7 @@ func loli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 		return
 	}
 
-        tag = "loli*"
+        tag = "loli* -site:moe"
         tag = http.URLEscape(tag)
         site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
@@ -104,7 +104,7 @@ func loli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 }
 
 func sloli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
-        tag = "+loli* rating:s"
+        tag = "+loli* rating:s -site:moe"
         tag = http.URLEscape(tag)
         site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 

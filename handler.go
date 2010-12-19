@@ -10,9 +10,6 @@ import (
 )
 
 var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
-	// QDB
-	"qdb": getq,
-
 	// access
 	"flags": flags,
 	"add": add,
@@ -56,7 +53,9 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"booru": booru,
 
 	// QDB
-//	"add": addquote,
+	"sq": addquote,
+	"gq": getq,
+	"rq": randq,
 }
 
 func handlePrivmsg(conn *irc.Conn, line *irc.Line) {

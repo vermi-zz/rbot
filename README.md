@@ -92,6 +92,11 @@ Danbooru API commands:
 - `sloli`: returns a random work-safe loli image
 - `futa`: returns a random futa image
 
+QDB Commands:
+
+- `quote < raylu> blah`: Submits "< raylu> blah" as a quote to ChalamiuS's QDB.
+	* Use `\n` to separate new lines, for example: `quote < raylu> blah\n< vermi> blah!`
+
 Commands that don't require access behave the same when sent to a channel the bot is in and when whispered to the bot.
 
 Commands that require access are listed above as if they were sent to a channel. When sent as a whisper, the first argument must be a channel name.

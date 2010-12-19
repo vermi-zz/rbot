@@ -56,6 +56,9 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"sq": addquote,
 	"gq": getq,
 	"rq": randq,
+
+	// GitHub API
+	"bug": openissue,
 }
 
 func handlePrivmsg(conn *irc.Conn, line *irc.Line) {

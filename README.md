@@ -94,8 +94,10 @@ Danbooru API commands:
 
 QDB Commands:
 
-- `add < raylu> blah`: Submits "< raylu> blah" as a quote to ChalamiuS's QDB.
-	* Use `\n` to separate new lines, for example: `add < raylu> blah\n< vermi> blah!`
+- `sq < raylu> blah`: Submits "< raylu> blah" as a quote to ChalamiuS's QDB.
+	* Use `\n` to separate new lines, for example: `sq < raylu> blah\n< vermi> blah!`
+- `gq 10`: Gets quote #10 from ChalamiuS's QDB.
+- `rq`: Fetches a random quote from ChalamiuS's QDB.
 
 Commands that don't require access behave the same when sent to a channel the bot is in and when whispered to the bot.
 

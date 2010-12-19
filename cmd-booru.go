@@ -49,6 +49,10 @@ func scrape(conn *irc.Conn, channel string, site string) (status string) {
 }
 
 func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
+	if channel == "#anime-planet.com" {
+		channel = nick.Nick
+	}
+
 	if tag == "" {
 		channel = nick.Nick
 		say(conn, channel, "Syntax: !booru tag [tag2 tag3 ...]; you can use +tag, -tag, and rating:[s,q,e]")

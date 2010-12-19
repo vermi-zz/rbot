@@ -10,6 +10,9 @@ import (
 )
 
 var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
+	// QDB
+	"qdb": getq,
+
 	// access
 	"flags": flags,
 	"add": add,

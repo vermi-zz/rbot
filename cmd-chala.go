@@ -4,6 +4,10 @@ import (
 	"irc"
 	"http"
 	"strings"
+	"fmt"
+	"io/ioutil"
+	"json"
+	"html"
 )
 
 func addquote(conn *irc.Conn, nick *irc.Nick, quote string, channel string) {
@@ -30,4 +34,57 @@ func addquote(conn *irc.Conn, nick *irc.Nick, quote string, channel string) {
 	}
 
 	say(conn, channel, "Your quote has been submitted.")
+}
+
+func getq(conn *irc.Conn, nick *irc.Nick, id string, channel string) {
+	if id == "" {
+		say(conn, channel, "Syntax: !qdb ##; where ## is the unique ID of a quote in the database.")
+		return
+	}
+
+	site := fmt.Sprintf("http://www.chalamius.se/quotes/api/json/quote/%s/", id)
+	stuff, _, err := http.Get(site)
+	defer stuff.Body.Close()
+
+	if err != nil {
+		say(conn, channel, "Something went wrong!")
+		return
+	}
+
+	x, err := ioutil.ReadAll(stuff.Body)
+	if err != nil {
+		say(conn, channel, "Something went wrong!")
+		return
+	}
+
+	var reply map[string]interface{}
+
+	err = json.Unmarshal(x, &reply)
+	if err != nil {
+		say(conn, channel, "That quote ID doesn't seem to exist.")
+		return
+	}
+
+	var text []string
+
+	content := reply["content"].(string)
+	content = html.UnescapeString(content)
+	text = strings.Split(content, "\r\n", -1)
+	who := reply["author"].(string)
+	where := reply["channel"].(string)
+
+	byline := "Submitted by " + who
+	if where != "" {
+		byline += " in " + where
+	}
+
+	if len(text) > 4 {
+		say(conn, channel, "Quote %s: http://www.chalamius.se/quotes/quote.php?id=%s", id, id)
+		return
+	}
+
+	for _, out := range text {
+		say(conn, channel, "%s", out)
+	}
+	say(conn, channel, byline)
 }

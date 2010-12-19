@@ -41,18 +41,14 @@ func scrape(conn *irc.Conn, channel string, site string) (status string) {
 		case url.Response.Response.Rating == "0": rating = "[Not Rated] "
         }
 
-        result := fmt.Sprintf("%s%s", rating, url.Response.Response.File_url)
+        result := rating + shorten(url.Response.Response.File_url)
 
-        say(conn, channel, result)
+        say(conn, channel, "%s", result)
 
 	return "OK"
 }
 
 func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
-	if channel == "#anime-planet.com" {
-		channel = nick.Nick
-	}
-
 	if tag == "" {
 		channel = nick.Nick
 		say(conn, channel, "Syntax: !booru tag [tag2 tag3 ...]; you can use +tag, -tag, and rating:[s,q,e]")
@@ -61,7 +57,6 @@ func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 		return
 	}
 
-	tag = fmt.Sprintf("%s -site:moe", tag)
 	tag = http.URLEscape(tag)
 	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
@@ -77,7 +72,7 @@ func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 }
 
 func futa(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
-	tag = "futa futanari -futaba* -site:moe"
+	tag = "futa futanari -futaba*"
 	tag = http.URLEscape(tag)
 	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
@@ -95,7 +90,7 @@ func loli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 		return
 	}
 
-        tag = "loli* -site:moe"
+        tag = "loli*"
         tag = http.URLEscape(tag)
         site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
@@ -108,7 +103,7 @@ func loli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 }
 
 func sloli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
-        tag = "+loli* rating:s -site:moe"
+        tag = "+loli* rating:s"
         tag = http.URLEscape(tag)
         site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 

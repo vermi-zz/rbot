@@ -5,7 +5,7 @@
 include $(GOROOT)/src/Make.inc
 
 TARG=rbot
-GOFILES=rbot.go handler.go auth.go bitly.go cmd-access.go cmd-admin.go cmd-op.go cmd-google.go cmd-booru.go cmd-chala.go cmd-bug.go
+GOFILES=rbot.go handler.go auth.go bitly.go cmd-access.go cmd-admin.go cmd-op.go cmd-google.go cmd-booru.go cmd-chala.go cmd-git.go
 
 include $(GOROOT)/src/Make.cmd
 

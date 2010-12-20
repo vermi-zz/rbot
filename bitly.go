@@ -13,8 +13,7 @@ func shorten(long string) (short string) {
 
 	long = http.URLEscape(long)
 
-	url := fmt.Sprintf("http://api.bit.ly/v3/shorten?login=%s&apiKey=%s&domain=bit.ly&longUrl=%s&format=json", login, key, long)
-
+	url := fmt.Sprintf("http://api.bit.ly/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=json", login, key, long)
 	r, _, err := http.Get(url)
         defer r.Body.Close()
 

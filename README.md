@@ -94,10 +94,14 @@ Danbooru API commands:
 
 QDB Commands:
 
-- `sq < raylu> blah`: Submits "< raylu> blah" as a quote to ChalamiuS's QDB.
-	* Use `\n` to separate new lines, for example: `sq < raylu> blah\n< vermi> blah!`
-- `gq 10`: Gets quote #10 from ChalamiuS's QDB.
-- `rq`: Fetches a random quote from ChalamiuS's QDB.
+- `aq < raylu> blah`: Submits "< raylu> blah" as a quote to ChalamiuS's QDB.
+	* Use `\n` to separate new lines, for example: `aq < raylu> blah\n< vermi> blah!`
+- `gq 10`: Gets quote with ID 10 from ChalamiuS's QDB.
+- `rq`: Gets a random quote from ChalamiuS's QDB
+
+GitHub API Commands:
+
+- `bug blah`: Submits "blah" as an issue to the owner's rbot fork. The issue feature must be enabled in your repository for this to work.
 
 Commands that don't require access behave the same when sent to a channel the bot is in and when whispered to the bot.
 

@@ -19,6 +19,11 @@ func openissue(conn *irc.Conn, nick *irc.Nick, body string, channel string) {
 		return
 	}
 
+	if len(body) < 30 {
+		say(conn, channel, "Error: to prevent spam, bug reports must be longer than 30 characters.")
+		return
+	}
+
 	data := map[string]string{
 		"login": login,
 		"token": token,

@@ -59,6 +59,12 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 
 	// GitHub API
 	"bug": openissue,
+
+	// anime-planet.com
+	"myprof": apProfile,
+	"myanime": animelist,
+	"mymanga": mangalist,
+	"apnick": apnick,
 }
 
 func handlePrivmsg(conn *irc.Conn, line *irc.Line) {

@@ -61,7 +61,7 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"bug": openissue,
 
 	// anime-planet.com
-	"myprof": apProfile,
+	"profile": apProfile,
 	"myanime": animelist,
 	"mymanga": mangalist,
 	"apnick": apnick,

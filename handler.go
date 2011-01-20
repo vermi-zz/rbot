@@ -62,9 +62,10 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 
 	// anime-planet.com
 	"profile": apProfile,
-	"myanime": animelist,
-	"mymanga": mangalist,
-	"apnick": apnick,
+	"myanime": apAnimeList,
+	"mymanga": apMangaList,
+	"apnick": apSetNick,
+	"mynick": apMyNick,
 }
 
 func handlePrivmsg(conn *irc.Conn, line *irc.Line) {

@@ -4,9 +4,10 @@ import(
         irc "github.com/fluffle/goirc/client"
 	"github.com/kless/goconfig/config"
 	"http"
+	"strings"
 )
 
-const configFile = "ap.conf"
+const apConfigFile = "ap.conf"
 
 func apUserExists(username string) (isuser bool) {
 	url := "http://anime-planet.com/users/" + username
@@ -26,21 +27,21 @@ func apUserExists(username string) (isuser bool) {
 	return false
 }
 
-func readAPConfig(nick *irc.Nick, channel string) (apnick string) {
-	c, _ := config.ReadDefault(configFile)
+func apReadConfig(nick *irc.Nick) (apnick string) {
+	c, _ := config.ReadDefault(apConfigFile)
 	
 	hostmask := user(nick)
 
-	apnick, _ = c.String(channel, hostmask)
+	apnick, _ = c.String(hostmask, "nick")
 
 	return apnick
 }
 
 func apProfile(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
-	username := arg
+	username := strings.TrimSpace(arg)
 
 	if username  == "" {
-		username = readAPConfig(nick, channel)
+		username = apReadConfig(nick)
 	}
 
 	if username == "" {
@@ -52,14 +53,14 @@ func apProfile(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 		return
 	}
 	
-	say(conn, channel, "The user '%s' doesn't exist. Try setting your AP username with !apnick.", username)
+	say(conn, channel, "The user '%s' doesn't exist. Try again.", username)
 }
 
-func animelist(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
-        username := arg
+func apAnimeList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
+        username := strings.TrimSpace(arg)
 
         if username == "" {
-                username = readAPConfig(nick, channel)
+                username = apReadConfig(nick)
         }
 
         if username == "" {
@@ -71,14 +72,14 @@ func animelist(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 		return
 	}
 
-	say(conn, channel, "The user '%s' doesn't exist. Try setting your AP username with !apnick.", username)
+	say(conn, channel, "The user '%s' doesn't exist. Try again.", username)
 }
 
-func mangalist(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
-        username := arg
+func apMangaList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
+        username := strings.TrimSpace(arg)
 
         if username == "" {
-                username = readAPConfig(nick, channel)
+                username = apReadConfig(nick)
         }
 
         if username == "" {
@@ -90,21 +91,39 @@ func mangalist(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 		return
 	}
 
-	say(conn, channel, "The user '%s' doesn't exist. Try setting your AP username with !apnick.", username)
+	say(conn, channel, "The user '%s' doesn't exist. Try again.", username)
 }
 
-func apnick(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
+func apSetNick(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
+	arg = strings.TrimSpace(arg)
+
 	if arg == "" {
 		say(conn, channel, "Format is !apnick <nickname>")
 		return
 	}
 
-	c, _ := config.ReadDefault(configFile)
+	if apUserExists(arg) {
+		c, _ := config.ReadDefault(apConfigFile)
+	
+		hostmask := user(nick)
 
-	hostmask := user(nick)
+		c.AddOption(hostmask, "nick", arg)
+		c.WriteFile(apConfigFile, 0644, "")
 
-	c.AddOption(channel, hostmask, arg)
-	c.WriteFile(configFile, 0644, "")
+		say(conn, channel, "Your anime-planet.com username has been recorded as '%s'", arg)
+		return
+	}
 
-	say(conn, channel, "AP Nick set to %s", arg)
+	say(conn, channel, "The user '%s' doesn't exist. Try again.", arg)
+}
+
+func apMyNick(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
+	username := apReadConfig(nick)
+
+	if username == "" {
+		say(conn, channel, "You haven't set your username. You can do so with !apnick <username>")
+		return
+	}
+
+	say(conn, channel, "Your anime-planet.com username has been recorded as '%s'.", username)
 }

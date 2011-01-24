@@ -1,8 +1,5 @@
 [DEFAULT]
 trigger: !
-git_login: gituser
-git_token: 012abc...
-git_project: rbot
 
 [Rizon]
 server: irc.rizon.net

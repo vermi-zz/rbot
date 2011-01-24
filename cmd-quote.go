@@ -187,5 +187,5 @@ func quoteSearch(conn *irc.Conn, nick *irc.Nick, term string, channel string) {
 	
 	if i == 4 {
 		say(conn, channel, "Top 5 results returned.")
-	} else { say(conn, channel, "%s results returned.", i.(string))
+	} else { say(conn, channel, "%s results returned.", i.(string)) }
 }

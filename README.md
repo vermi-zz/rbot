@@ -82,7 +82,12 @@ Google API commands:
 - `roman text`: translate text into romaji (see rbot.conf.example)
 - `calc 1 usd in yen`: convert 1 USD to Japanese yen
 
-Danbooru API commands:
+Help commands:
+- `help`: displays a list of possible help topics
+- `help topic`: displays help on topic, as long as it's in the list of possible topics.
+Help topics and content are manually entered in help.conf. You probably won't need to change this, unless you add commands to the bot yourself.
+
+Imageboard Search Commands:
 
 - `booru tag [tag2 tag3 ...]`: search the boorus for images containing any of the listed tags.
 	* `+tag`: marks a tag as mandatory
@@ -98,10 +103,15 @@ QDB Commands:
 	* Use `\n` to separate new lines, for example: `aq < raylu> blah\n< vermi> blah!`
 - `gq 10`: Gets quote with ID 10 from ChalamiuS's QDB.
 - `rq`: Gets a random quote from ChalamiuS's QDB
+- `sq blah`: searches the QDB for 'blah'. Currently only supports one-word searches.
 
-GitHub API Commands:
+Anime-planet.com Commands:
 
-- `bug blah`: Submits "blah" as an issue to the owner's rbot fork. The issue feature must be enabled in your repository for this to work.
+- `apnick vermi`: records my site username as vermi (useful if I change nicks a lot)
+- `mynick`: checks if I've set my site username, and tells me what it's set as
+- `profile`: if I've set apnick, uses that value to return a link to my profile; otherwise, uses my current nick
+- `profile vermi`: displays a link to vermi's profile; checks to see if a user named 'vermi' exists, first.
+- `mymanga` and `myanime`: work the same as `profile`, but return links to Manga and Anime lists, respectively
 
 Commands that don't require access behave the same when sent to a channel the bot is in and when whispered to the bot.
 

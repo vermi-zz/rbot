@@ -56,7 +56,7 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"aq": quoteAdd,
 	"gq": quoteGet,
 	"rq": quoteRand,
-//	"sq": quoteSearch,
+	"sq": quoteSearch,
 
 	// anime-planet.com
 	"profile": apProfile,

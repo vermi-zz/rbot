@@ -7,3 +7,4 @@ _test/
 *.out
 rbot.conf
 auth.conf
+/.project

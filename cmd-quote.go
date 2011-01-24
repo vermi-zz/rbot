@@ -91,49 +91,96 @@ func quoteGet(conn *irc.Conn, nick *irc.Nick, id string, channel string) {
 
 func quoteRand(conn *irc.Conn, nick *irc.Nick, _, channel string) {
 	url := "http://www.chalamius.se/quotes/api/json/random/"
-        r, _, err := http.Get(url)
-        defer r.Body.Close()
+	r, _, err := http.Get(url)
+	defer r.Body.Close()
 
 	if err != nil {
 		say(conn, channel, "Error connecting to QDB.")
 		return
 	}
 
-        b, err := ioutil.ReadAll(r.Body)
-        if err != nil {
-                say(conn, channel, "Error reading JSON response.")
-                return
-        }
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		say(conn, channel, "Error reading JSON response.")
+		return
+	}
 
-        var reply map[string]interface{}
+	var reply map[string]interface{}
 
-        err = json.Unmarshal(b, &reply)
-        if err != nil {
-                say(conn, channel, "Error fetching random quote.")
-                return
-        }
+	err = json.Unmarshal(b, &reply)
+	if err != nil {
+		say(conn, channel, "Error fetching random quote.")
+		return
+	}
 
-        var text []string
+	var text []string
 
-        content := reply["content"].(string)
-        content = html.UnescapeString(content)
-        text = strings.Split(content, "\r\n", -1)
+	content := reply["content"].(string)
+	content = html.UnescapeString(content)
+	text = strings.Split(content, "\r\n", -1)
 	id := reply["id"].(string)
-        who := reply["author"].(string)
-        where := reply["channel"].(string)
+	who := reply["author"].(string)
+	where := reply["channel"].(string)
 
-        byline := "Submitted by " + who
-        if where != "" {
-                byline += " in " + where
-        }
+	byline := "Submitted by " + who
+	if where != "" {
+		byline += " in " + where
+	}
 
-        if len(text) > 4 {
-                say(conn, channel, "Random quote: http://www.chalamius.se/quotes/quote.php?id=%s", id)
-                return
-        }
+	if len(text) > 4 {
+		say(conn, channel, "Random quote: http://www.chalamius.se/quotes/quote.php?id=%s", id)
+		return
+	}
 
-        for _, out := range text {
-                say(conn, channel, "%s", out)
-        }
-        say(conn, channel, byline)
+	for _, out := range text {
+		say(conn, channel, "%s", out)
+	}
+
+	say(conn, channel, byline)
+}
+
+func quoteSearch(conn *irc.Conn, nick *irc.Nick, term string, channel string) {
+	channel = nick.Nick
+	term = strings.TrimSpace(term)
+
+	if term == "" {
+		say(conn, channel, "No search term specified. Defaulting to random quote.")
+		quoteRand(conn, nick, term, channel)
+		return
+	}
+	
+	url := fmt.Sprintf("http://www.chalamius.se/quotes/api/json/search/%s", term)
+	
+	r, _, err := http.Get(url)
+	defer r.Body.Close()
+
+	if err != nil {
+		say(conn, channel, "Error connecting to QDB.")
+		return
+	}
+
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		say(conn, channel, "Error reading JSON response.")
+		return
+	}
+
+	var reply []map[string]interface{}
+
+	err = json.Unmarshal(b, &reply)
+	if err != nil {
+		say(conn, channel, "No results. Try a different search term.")
+		return
+	}
+	
+	var searchResult map[string]interface{}
+	var resultUrl string
+	var i int
+	
+	for i, searchResult = range reply {
+		resultUrl = fmt.Sprintf("http://www.chalamius.se/quotes/api/json/quote/%s/", searchResult["id"].(string))
+		say(conn, channel, "Result %s: %s (or !gq %s)", i, resultUrl, searchResult["id"].(string))
+	}
+	
+	say(conn, channel, "%s results returned.", i)
 }

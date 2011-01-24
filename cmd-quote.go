@@ -178,7 +178,7 @@ func quoteSearch(conn *irc.Conn, nick *irc.Nick, term string, channel string) {
 	var i int
 	
 	for i, searchResult = range reply {
-		count = i + 1
+		count := i + 1
 		resultUrl = fmt.Sprintf("http://www.chalamius.se/quotes/api/json/quote/%s/", searchResult["id"].(string))
 		say(conn, channel, "Result %s: %s (or !gq %s)", count.(string), resultUrl, searchResult["id"].(string))
 		

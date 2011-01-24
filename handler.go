@@ -64,6 +64,9 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"mymanga": apMangaList,
 	"apnick": apSetNick,
 	"mynick": apMyNick,
+	
+	// help
+	"help": helpProcessRequest,
 }
 
 func handlePrivmsg(conn *irc.Conn, line *irc.Line) {

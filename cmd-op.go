@@ -4,7 +4,7 @@ import (
 	irc "github.com/fluffle/goirc/client"
 	"strings"
 	"time"
-	"github.com/kless/goconfig/config"
+	config "goconfig"
 	"strconv"
 	"fmt"
 )

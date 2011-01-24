@@ -1,8 +1,8 @@
 package main
 
 import(
-    irc "github.com/fluffle/goirc/client"
-	"github.com/kless/goconfig/config"
+	irc "github.com/fluffle/goirc/client"
+	config "goconfig"
 	"strings"
 )
 

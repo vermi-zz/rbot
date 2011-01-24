@@ -3,6 +3,10 @@ package main
 import (
 	irc "github.com/fluffle/goirc/client"
 	"strings"
+	"time"
+	"github.com/kless/goconfig/config"
+	"strconv"
+	"fmt"
 )
 
 func op(conn *irc.Conn, nick *irc.Nick, args, target string) {
@@ -185,6 +189,48 @@ func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	conn.Mode(channel, modestring)
 }
 
+func banLogAdd(host string, nick string, reason string, channel string) {
+	c, _ := config.ReadDefault("bans.list")
+	banCount, _ := c.Int(channel, "count")
+	banCount += 1
+	banSection := fmt.Sprintf("%s %v", channel, banCount)
+	banTime := time.LocalTime().String()
+	
+	c.AddOption(channel, "count", strconv.Itoa(banCount))
+	c.AddOption(banSection, "nick", nick)
+	c.AddOption(banSection, "host", host)
+	c.AddOption(banSection, "reason", reason)
+	c.AddOption(banSection, "time", banTime)
+	c.WriteFile("bans.list", 0644, "Ban List")
+}
+
+func banList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
+	c, _ := config.ReadDefault("bans.list")
+	banCount, _ := c.Int(channel, "count")
+	
+	if banCount == 0 {
+		say(conn, channel, "There are no bans for %s.", channel)
+		return
+	}
+	
+	howMany, err := strconv.Atoi(arg)
+	if err != nil { howMany = 10 }
+	
+	say(conn, channel, "There are a total of %v bans in the log for this channel.", banCount)		
+
+	if banCount <= howMany { howMany = 1 } else { howMany = banCount - howMany }
+	
+	for counter := banCount; counter >= howMany; counter -= 1 {
+		logSection := channel + " " + strconv.Itoa(counter)
+		logNick, _ := c.String(logSection, "nick")
+		logHost, _ := c.String(logSection, "host")
+		logReason, _ := c.String(logSection, "reason")
+		logTime, _ := c.String(logSection, "time")
+		
+		say(conn, nick.Nick, "Ban #%v: %s, %s - %s - %s", counter, logNick, logHost, logReason, logTime)
+	}
+}
+
 func kickban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	channel, args := parseAccess(conn, nick, target, args, "oh")
 	if channel == "" || args == "" {
@@ -205,6 +251,7 @@ func kickban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		reason += " " + split[1]
 	}
 	conn.Kick(channel, split[0], reason)
+	banLogAdd("*!*@" + n.Host, split[0], reason, channel)
 }
 
 func topic(conn *irc.Conn, nick *irc.Nick, args, target string) {

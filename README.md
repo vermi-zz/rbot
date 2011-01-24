@@ -51,6 +51,9 @@ Admin commands:
 
 - `nick john`: changes the bot's nick to john
 - `say text`: says text to the channel
+- `bans`: Lists the ban-log for the current channel, if it exists.
+
+The ban-log may need to be zeroed out manually from time to time to reduce clutter.
 
 Op commands:
 

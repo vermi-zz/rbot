@@ -9,7 +9,7 @@ Assuming you have go set up (http://golang.org/),
 	cd goconfig
 	make -C config install
 	cd ..
-	git clone git://github.com/raylu/rbot.git
+	git clone git://github.com/vermi/rbot.git
 	cd rbot
 	make -C irc install
 	make

@@ -46,19 +46,20 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"calc": calc,
 
 	// booru
-	"safeloli": sloli,
-	"sloli": sloli,
-	"futa": futa,
-	"loli": loli,
-	"booru": booru,
+	"safeloli": booruSafeLoli,
+	"sloli": booruSafeLoli,
+	"futa": booruFuta,
+	"loli": booruLoli,
+	"booru": booruSearch,
 
 	// QDB
-	"sq": addquote,
-	"gq": getq,
-	"rq": randq,
+	"aq": quoteAdd,
+	"gq": quoteGet,
+	"rq": quoteRand,
+//	"sq": quoteSearch,
 
 	// GitHub API
-	"bug": openissue,
+	"bug": gitOpenIssue,
 
 	// anime-planet.com
 	"profile": apProfile,

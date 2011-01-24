@@ -1,7 +1,7 @@
 package main
 
 import(
-        irc "github.com/fluffle/goirc/client"
+    irc "github.com/fluffle/goirc/client"
 	"github.com/kless/goconfig/config"
 	"http"
 	"strings"
@@ -117,7 +117,7 @@ func apSetNick(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	say(conn, channel, "The user '%s' doesn't exist. Try again.", arg)
 }
 
-func apMyNick(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
+func apMyNick(conn *irc.Conn, nick *irc.Nick, _, channel string) {
 	username := apReadConfig(nick)
 
 	if username == "" {

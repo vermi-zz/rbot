@@ -7,7 +7,7 @@ import (
 	"xml"
 )
 
-func scrape(conn *irc.Conn, channel string, site string) (status string) {
+func booruDoSearch(conn *irc.Conn, channel string, site string) (status string) {
 	stuff, _, err := http.Get(site)
 	if err != nil {
 		return "DOWN"
@@ -48,7 +48,7 @@ func scrape(conn *irc.Conn, channel string, site string) (status string) {
 	return "OK"
 }
 
-func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
+func booruSearch(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	if tag == "" {
 		channel = nick.Nick
 		say(conn, channel, "Syntax: !booru tag [tag2 tag3 ...]; you can use +tag, -tag, and rating:[s,q,e]")
@@ -62,7 +62,7 @@ func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 
 	status := "FAIL"
 	for fail := 0; fail < 10 && status == "FAIL"; fail++ {
-		status = scrape(conn, channel, site)
+		status = booruDoSearch(conn, channel, site)
 	}
 
 	switch {
@@ -71,12 +71,12 @@ func booru(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	}
 }
 
-func futa(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
+func booruFuta(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	tag = "futa futanari -futaba*"
 	tag = http.URLEscape(tag)
 	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
-	status := scrape(conn, channel, site)
+	status := booruDoSearch(conn, channel, site)
 
         switch {
                 case status == "FAIL": say(conn, channel, "%s, you are a pervert! No futa for you! >:|", nick.Nick)
@@ -84,17 +84,12 @@ func futa(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
         }
 }
 
-func loli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
-	if channel == "#bakabt" {
-		sloli(conn, nick, "", channel)
-		return
-	}
-
+func booruLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
         tag = "loli*"
         tag = http.URLEscape(tag)
         site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
-        status := scrape(conn, channel, site)
+        status := booruDoSearch(conn, channel, site)
 
         switch {
                 case status == "FAIL": say(conn, channel, "%s, you are a pervert! No loli for you! >:|", nick.Nick)
@@ -102,12 +97,12 @@ func loli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
         }
 }
 
-func sloli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
+func booruSafeLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
         tag = "+loli* rating:s"
         tag = http.URLEscape(tag)
         site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
-        status := scrape(conn, channel, site)
+        status := booruDoSearch(conn, channel, site)
 
         switch {
                 case status == "FAIL": say(conn, channel, "Aww, I couldn't find anything this time... ;-;")

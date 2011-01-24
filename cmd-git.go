@@ -9,11 +9,11 @@ import (
 	"io/ioutil"
 	"strconv"
 )
+var gitProject = readConfString("DEFAULT", "git_project")
+var gitLogin = readConfString("DEFAULT", "git_login")
+var gitToken = readConfString("DEFAULT", "git_token")
 
-func openissue(conn *irc.Conn, nick *irc.Nick, body string, channel string) {
-	login := readConfString("DEFAULT", "git_login")
-	token := readConfString("DEFAULT", "git_token")
-
+func gitOpenIssue(conn *irc.Conn, nick *irc.Nick, body string, channel string) {
 	if body == "" {
 		say(conn, channel, "Syntax: !bug <body>; newlines should be separated with \\n.")
 		return
@@ -25,13 +25,13 @@ func openissue(conn *irc.Conn, nick *irc.Nick, body string, channel string) {
 	}
 
 	data := map[string]string{
-		"login": login,
-		"token": token,
+		"login": gitLogin,
+		"token": gitToken,
 		"title": "IRC Issue from " + nick.Nick + " (" + channel + ")",
 		"body": strings.Replace(body, "\\n", "\n", -1),
 	}
 
-	url := fmt.Sprintf("http://github.com/api/v2/json/issues/open/%s/rbot", login)
+	url := fmt.Sprintf("http://github.com/api/v2/json/issues/open/%s/%s", gitLogin, gitProject)
 
 	r, err := http.PostForm(url, data)
 	defer r.Body.Close()
@@ -59,5 +59,5 @@ func openissue(conn *irc.Conn, nick *irc.Nick, body string, channel string) {
 
 	id := strconv.Ftoa64(issue["number"].(float64), 'f', -1)
 	
-	say(conn, channel, "Your issue has been submitted. You can view it at http://github.com/%s/rbot/issues/#issue/%s", login, id)
+	say(conn, channel, "Your issue has been submitted. You can view it at http://github.com/%s/rbot/issues/#issue/%s", gitLogin, id)
 }

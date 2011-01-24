@@ -10,7 +10,7 @@ import (
 	"html"
 )
 
-func addquote(conn *irc.Conn, nick *irc.Nick, quote string, channel string) {
+func quoteAdd(conn *irc.Conn, nick *irc.Nick, quote string, channel string) {
 	if quote == "" {
 		say(conn, channel, "Syntax: !quote <quote text>; use \\n as a newline separator.")
 		say(conn, channel, "Example: !quote <vermi> this is a quote")
@@ -36,7 +36,7 @@ func addquote(conn *irc.Conn, nick *irc.Nick, quote string, channel string) {
 	say(conn, channel, "Your quote has been submitted.")
 }
 
-func getq(conn *irc.Conn, nick *irc.Nick, id string, channel string) {
+func quoteGet(conn *irc.Conn, nick *irc.Nick, id string, channel string) {
 	if id == "" {
 		say(conn, channel, "Syntax: !qdb ##; where ## is the unique ID of a quote in the database.")
 		return
@@ -89,7 +89,7 @@ func getq(conn *irc.Conn, nick *irc.Nick, id string, channel string) {
 	say(conn, channel, byline)
 }
 
-func randq(conn *irc.Conn, nick *irc.Nick, _, channel string) {
+func quoteRand(conn *irc.Conn, nick *irc.Nick, _, channel string) {
 	url := "http://www.chalamius.se/quotes/api/json/random/"
         r, _, err := http.Get(url)
         defer r.Body.Close()

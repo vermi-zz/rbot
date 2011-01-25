@@ -85,8 +85,10 @@ Google API commands:
 - `calc 1 usd in yen`: convert 1 USD to Japanese yen
 
 Help commands:
+
 - `help`: displays a list of possible help topics
 - `help topic`: displays help on topic, as long as it's in the list of possible topics.
+
 Help topics and content are manually entered in help.conf. You probably won't need to change this, unless you add commands to the bot yourself.
 
 Imageboard Search Commands:

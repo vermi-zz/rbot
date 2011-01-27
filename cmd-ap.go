@@ -10,7 +10,7 @@ import(
 const apConfigFile = "ap.conf"
 
 func apUserExists(username string) (isuser bool) {
-	url := "http://anime-planet.com/users/" + username
+	url := "http://www.anime-planet.com/users/" + username
 
 	r, _, err := http.Get(url)
 
@@ -49,7 +49,7 @@ func apProfile(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	}
 
 	if apUserExists(username) {
-		say(conn, channel, "%s's profile: http://anime-planet.com/users/%s", username, username)
+		say(conn, channel, "%s's profile: http://www.anime-planet.com/users/%s", username, username)
 		return
 	}
 	
@@ -68,7 +68,7 @@ func apAnimeList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
         }
 
 	if apUserExists(username) {
-		say(conn, channel, "%s's anime list: http://anime-planet.com/users/%s/anime", username, username)
+		say(conn, channel, "%s's anime list: http://www.anime-planet.com/users/%s/anime", username, username)
 		return
 	}
 
@@ -87,7 +87,7 @@ func apMangaList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
         }
 
 	if apUserExists(username) {
-		say(conn, channel, "%s's manga list: http://anime-planet.com/users/%s/manga", username, username)
+		say(conn, channel, "%s's manga list: http://www.anime-planet.com/users/%s/manga", username, username)
 		return
 	}
 

@@ -182,18 +182,27 @@ func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		} else if n := conn.GetNick(ban); n != nil {
 			// the user is in one of our channels, here's our best guess
 			split[i] = "*!*@" + n.Host
-		} else if z, zerr := strconv.Atoi(ban); zerr == nil {
+		} else if _, err := strconv.Atoi(ban); err == nil {
                         // the ban is an integer, let's find it in the banlist
-                        c, cerr := config.ReadDefault("bans.list")
-                        if cerr != nil { return }
+                        c, err := config.ReadDefault("bans.list")
+                        if err != nil { return }
 
-                        host := c.String(channel + " " + ban, host)
-                        if host != "" { split[i] = host }
+                        host, err := c.String(channel + " " + ban, "host")
+                        if err == nil { split[i] = host }
+			banLogDel(channel, ban)
                 }
 	}
 	bans = strings.Join(split, " ")
 	modestring := "-" + strings.Repeat("b", len(bans)) + " " + bans
 	conn.Mode(channel, modestring)
+}
+
+func banLogDel(channel string, ban string) {
+	c, err := config.ReadDefault("bans.list")
+	if err != nil { return }
+
+	c.AddOption(channel + " " + ban, "status", "REMOVED")
+	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
 func banLogAdd(host string, nick string, reason string, channel string) {
@@ -208,11 +217,23 @@ func banLogAdd(host string, nick string, reason string, channel string) {
 	c.AddOption(banSection, "host", host)
 	c.AddOption(banSection, "reason", reason)
 	c.AddOption(banSection, "time", banTime)
+	c.AddOption(banSection, "status", "ACTIVE")
 	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
-func banList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
-	c, _ := config.ReadDefault("bans.list")
+func banList(conn *irc.Conn, nick *irc.Nick, args string, target string) {
+	channel, args := parseAccess(conn, nick, target, args, "?")
+	if channel == "" {
+		say(conn, target, "Please specify a channel.")
+		return
+	}
+
+	c, err := config.ReadDefault("bans.list")
+	if err != nil {
+		say(conn, channel, "No banlist file exists for %s. This is probably an error.", channel)
+		return
+	}
+
 	banCount, _ := c.Int(channel, "count")
 	
 	if banCount == 0 {
@@ -220,21 +241,29 @@ func banList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 		return
 	}
 	
-	howMany, err := strconv.Atoi(arg)
+	howMany, err := strconv.Atoi(args)
 	if err != nil { howMany = 10 }
-	
-	say(conn, channel, "There are a total of %v bans in the log for this channel.", banCount)		
 
-	if banCount <= howMany { howMany = 1 } else { howMany = banCount - howMany }
+	if howMany == 0 {
+		say(conn, channel, "Why would you ask me to show you nothing? Sheesh.")
+		return
+	 }
+        if howMany < 0 || howMany > banCount { howMany = banCount }
 	
-	for counter := banCount; counter >= howMany; counter -= 1 {
+	say(conn, nick.Nick, "There are a total of %v bans in the log for %s.", banCount, channel)
+	say(conn, nick.Nick, "Displaying the last %v bans.", howMany)
+
+	if banCount == howMany { howMany = 0 } else { howMany = banCount - howMany }
+	
+	for counter := banCount; counter > howMany; counter -= 1 {
 		logSection := channel + " " + strconv.Itoa(counter)
 		logNick, _ := c.String(logSection, "nick")
 		logHost, _ := c.String(logSection, "host")
 		logReason, _ := c.String(logSection, "reason")
 		logTime, _ := c.String(logSection, "time")
+		logStatus, _ := c.String(logSection, "status")
 		
-		say(conn, nick.Nick, "Ban #%v: %s, %s - %s - %s", counter, logNick, logHost, logReason, logTime)
+		say(conn, nick.Nick, "Ban #%v [%s]: %s, %s - %s - %s", counter, logStatus, logNick, logHost, logReason, logTime)
 	}
 }
 

@@ -107,6 +107,8 @@ func hasAccess(conn *irc.Conn, nick *irc.Nick, channel, flag string) bool {
 		return true
 	}
 
+	if flag == "?" { return true }
+
 	flags, err := auth.String(conn.Network + " " + channel, user)
 	if err != nil {
 		return false

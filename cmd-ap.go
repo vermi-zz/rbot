@@ -10,7 +10,7 @@ import(
 const apConfigFile = "ap.conf"
 
 func apUserExists(username string) (isuser bool) {
-	url := "http://www.anime-planet.com/users/" + username
+	url := "http://www.anime-planet.com/users/" + http.URLEscape(username)
 
 	r, _, err := http.Get(url)
 

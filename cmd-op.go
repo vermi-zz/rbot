@@ -182,7 +182,14 @@ func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		} else if n := conn.GetNick(ban); n != nil {
 			// the user is in one of our channels, here's our best guess
 			split[i] = "*!*@" + n.Host
-		}
+		} else if z, zerr := strconv.Atoi(ban); zerr == nil {
+                        // the ban is an integer, let's find it in the banlist
+                        c, cerr := config.ReadDefault("bans.list")
+                        if cerr != nil { return }
+
+                        host := c.String(channel + " " + ban, host)
+                        if host != "" { split[i] = host }
+                }
 	}
 	bans = strings.Join(split, " ")
 	modestring := "-" + strings.Repeat("b", len(bans)) + " " + bans

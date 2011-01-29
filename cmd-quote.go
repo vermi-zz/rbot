@@ -18,7 +18,7 @@ func quoteAdd(conn *irc.Conn, nick *irc.Nick, quote string, channel string) {
 	}
 
 	data := map[string]string{
-		"name": nick.Nick,
+		"name":    nick.Nick,
 		"channel": channel,
 		"content": strings.Replace(quote, "\\n", "\n", -1),
 	}
@@ -148,9 +148,9 @@ func quoteSearch(conn *irc.Conn, nick *irc.Nick, term string, channel string) {
 		quoteRand(conn, nick, term, channel)
 		return
 	}
-	
+
 	url := fmt.Sprintf("http://www.chalamius.se/quotes/api/json/search/%s", term)
-	
+
 	r, _, err := http.Get(url)
 	defer r.Body.Close()
 
@@ -172,22 +172,26 @@ func quoteSearch(conn *irc.Conn, nick *irc.Nick, term string, channel string) {
 		say(conn, channel, "No results. Try a different search term.")
 		return
 	}
-	
+
 	var searchResult map[string]interface{}
 	var resultUrl string
 	var i int
-	
-	S: for i, searchResult = range reply {
+
+S:
+	for i, searchResult = range reply {
 		count := i + 1
 		resultUrl = fmt.Sprintf("http://www.chalamius.se/quotes/quote/%s/", searchResult["id"].(string))
 		say(conn, channel, "Result %v: %s (or !gq %s)", count, resultUrl, searchResult["id"].(string))
 
 		switch i {
-			case 4: break S
+		case 4:
+			break S
 		}
 	}
-	
+
 	if i == 4 {
 		say(conn, channel, "Top 5 results returned.")
-	} else { say(conn, channel, "All results returned.")}
+	} else {
+		say(conn, channel, "All results returned.")
+	}
 }

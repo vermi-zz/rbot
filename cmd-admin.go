@@ -8,7 +8,7 @@ func nick(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if len(args) == 0 {
 		return
 	}
-	owner, _ := auth.String(conn.Network, "owner");
+	owner, _ := auth.String(conn.Network, "owner")
 	if owner == user(nick) {
 		conn.Nick(args)
 	}

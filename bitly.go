@@ -15,25 +15,25 @@ func shorten(long string) (short string) {
 
 	url := fmt.Sprintf("http://api.bit.ly/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=json", login, key, long)
 	r, _, err := http.Get(url)
-        defer r.Body.Close()
+	defer r.Body.Close()
 
-        if err != nil {
-                return "Error connecting to bit.ly"
-        }
+	if err != nil {
+		return "Error connecting to bit.ly"
+	}
 
-        b, err := ioutil.ReadAll(r.Body)
-        if err != nil {
-                return "Error reading bit.ly response"
-        }
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return "Error reading bit.ly response"
+	}
 
-        var j map[string]interface{}
+	var j map[string]interface{}
 
-        err = json.Unmarshal(b, &j)
-        if err != nil {
-                return "Unable to shorten URL."
-        }
+	err = json.Unmarshal(b, &j)
+	if err != nil {
+		return "Unable to shorten URL."
+	}
 
 	var data map[string]interface{} = j["data"].(map[string]interface{})
 
-        return data["url"].(string)
+	return data["url"].(string)
 }

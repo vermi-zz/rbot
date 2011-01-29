@@ -9,12 +9,13 @@ import (
 )
 
 const authFile = "auth.conf"
+
 var auth *config.Config
 
 func readAuth() {
 	var err os.Error
 	auth, err = config.ReadDefault(authFile)
-	if (err != nil) {
+	if err != nil {
 		panic(fmt.Sprintf("Auth config error: %s", err))
 	}
 }
@@ -107,9 +108,11 @@ func hasAccess(conn *irc.Conn, nick *irc.Nick, channel, flag string) bool {
 		return true
 	}
 
-	if flag == "?" { return true }
+	if flag == "?" {
+		return true
+	}
 
-	flags, err := auth.String(conn.Network + " " + channel, user)
+	flags, err := auth.String(conn.Network+" "+channel, user)
 	if err != nil {
 		return false
 	}

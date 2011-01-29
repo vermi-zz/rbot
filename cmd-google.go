@@ -36,30 +36,34 @@ func translate(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		// translate
 		langPairsSlice := []string(langPairs)
 		url = fmt.Sprintf("http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s%s&key=%s",
-		                   http.URLEscape(args), strings.Join(langPairsSlice, ""), googleAPIKey)
+			http.URLEscape(args), strings.Join(langPairsSlice, ""), googleAPIKey)
 	} else {
 		// language detect
 		url = fmt.Sprintf("http://ajax.googleapis.com/ajax/services/language/detect?v=1.0&q=%s&key=%s",
-		                   http.URLEscape(args), googleAPIKey)
+			http.URLEscape(args), googleAPIKey)
 	}
 
 	response, _, err := http.Get(url)
 	defer response.Body.Close()
 	if err != nil {
-		say(conn, target, "%s: Error while requesting translation", nick.Nick); return
+		say(conn, target, "%s: Error while requesting translation", nick.Nick)
+		return
 	}
 	b, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		say(conn, target, "%s: Error while downloading translation", nick.Nick); return
+		say(conn, target, "%s: Error while downloading translation", nick.Nick)
+		return
 	}
 
 	var result map[string]interface{}
 	err = json.Unmarshal(b, &result)
 	if err != nil {
-		say(conn, target, "%s: Error while decoding translation", nick.Nick); return
+		say(conn, target, "%s: Error while decoding translation", nick.Nick)
+		return
 	}
 	if result["responseStatus"] != float64(200) {
-		say(conn, target, "%s: %s", nick.Nick, result["responseDetails"]); return
+		say(conn, target, "%s: %s", nick.Nick, result["responseDetails"])
+		return
 	}
 
 	if langPairs.Len() > 0 {
@@ -106,12 +110,14 @@ func roman(conn *irc.Conn, nick *irc.Nick, args, target string) {
 
 	b, err := send(url)
 	if err != nil {
-		say(conn, target, "%s: Error while requesting romanization", nick.Nick); return
+		say(conn, target, "%s: Error while requesting romanization", nick.Nick)
+		return
 	}
 
 	result := strings.Split(string(b), `"`, 7)
 	if len(result) < 7 {
-		say(conn, target, "%s: Error while parsing romanization", nick.Nick); return
+		say(conn, target, "%s: Error while parsing romanization", nick.Nick)
+		return
 	}
 
 	say(conn, target, "%s: %s", result[1], result[5])
@@ -125,19 +131,22 @@ func calc(conn *irc.Conn, nick *irc.Nick, args, target string) {
 
 	b, err := send(url)
 	if err != nil {
-		say(conn, target, "%s: Error while requesting calculation", nick.Nick); return
+		say(conn, target, "%s: Error while requesting calculation", nick.Nick)
+		return
 	}
 
 	re := regexp.MustCompile(`{lhs: "(.*)",rhs: "(.*)",error: "(.*)",icc: (true|false)}`)
 	result := re.FindSubmatch(b)
 	if len(result) != 5 || len(result[3]) > 1 {
-		say(conn, target, "%s: Error while calculating.", nick.Nick); return
+		say(conn, target, "%s: Error while calculating.", nick.Nick)
+		return
 	}
 
 	output := fmt.Sprintf(`"%s = %s"`, result[1], result[2])
 	output, err = strconv.Unquote(output)
 	if err != nil {
-		say(conn, target, "%s: Error while decoding.", nick.Nick); return
+		say(conn, target, "%s: Error while decoding.", nick.Nick)
+		return
 	}
 	output = html.UnescapeString(output)
 	output = strings.Replace(output, "<sup>", "^(", -1)
@@ -156,7 +165,7 @@ func send(url string) ([]byte, os.Error) {
 	}
 	request.UserAgent = "Mozilla/5.0"
 
-	httpcon, err := net.Dial("tcp", "", request.URL.Host + ":" + request.URL.Scheme)
+	httpcon, err := net.Dial("tcp", "", request.URL.Host+":"+request.URL.Scheme)
 	if err != nil {
 		return nil, err
 	}

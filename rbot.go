@@ -9,11 +9,11 @@ import (
 	"crypto/tls"
 	"crypto/rand"
 	"goconfig"
-	"container/list"
 	"strconv"
 )
 
 const confFile = "rbot.conf"
+
 var trigger string
 var sections []string
 var conf *config.Config
@@ -31,7 +31,7 @@ func main() {
 		}
 	}
 
-	<- make(chan bool)
+	<-make(chan bool)
 }
 
 func connect(network string) {
@@ -56,7 +56,7 @@ func connect(network string) {
 			fmt.Printf("Connected to %s!\n", conn.Host)
 
 			if len(nickserv) > 0 {
-				conn.Privmsg("NickServ", "IDENTIFY " + nickserv)
+				conn.Privmsg("NickServ", "IDENTIFY "+nickserv)
 			} else {
 				autojoin(conn)
 			}
@@ -95,7 +95,7 @@ func autojoin(conn *irc.Conn) {
 func readConf() {
 	var err os.Error
 	conf, err = config.ReadDefault("rbot.conf")
-	if (err != nil) {
+	if err != nil {
 		fmt.Printf("Config error: %s\n", err)
 		os.Exit(1)
 	}
@@ -123,40 +123,38 @@ func updateConf(section, option, value string) {
 	readConf()
 }
 func BanManager(conn *irc.Conn) {
-	c, err := config.ReadDefault("bans.list")
-	if err != nil {
-		panic(fmt.Sprintf("Config error: %s", err))
-	}
-	if !c.HasOption("timed", "count") {
-		time.Sleep(300000000000)
-		BanManager(conn)
-		return
-	}
-	count, err := c.Int("timed", "count")
-	if err != nil || count == 0 {
-		time.Sleep(300000000000)
-		BanManager(conn)
-		return
-	}
-	banlist := list.New()
-	for i := count; i > 0; i++ {
-		ban, _ := c.String("timed", strconv.Itoa(count))
-		_ = banlist.PushBack(ban)
-	}
-	for e := banlist.Front(); e != nil; e.Next() {
-		split := strings.Fields(e.Value.(string))
-		expiry, _ := strconv.Atoi64(split[2])
-		if expiry <= time.Seconds() {
-			host, _ := c.String(split[0], split[1] + ".host")
-			conn.Mode(split[0], "-b " + host)
-			banLogDel(split[0], split[1])
-			c.RemoveOption("timed", strconv.Itoa(count))
-			count--
-			c.AddOption("timed", "count", strconv.Itoa(count))
-			c.AddOption(split[0], split[1] + ".status", "EXPIRED")
+	for {
+		c, err := config.ReadDefault("bans.list")
+		if err != nil {
+			panic(fmt.Sprintf("Config error: %s", err))
 		}
+		if !c.HasOption("timed", "count") {
+			continue
+		}
+		count, err := c.Int("timed", "count")
+		if err != nil || count == 0 {
+			continue
+		}
+		banlist := make([]string, count)
+		for i := count; i > 0; i-- {
+			ban, _ := c.String("timed", strconv.Itoa(i))
+			banlist[i] = ban
+		}
+		for e := len(banlist); e > 0; e-- {
+			fmt.Println(banlist[e])
+			split := strings.Fields(banlist[e])
+			expiry, _ := strconv.Atoi64(split[2])
+			if expiry <= time.Seconds() {
+				host, _ := c.String(split[0], split[1]+".host")
+				conn.Mode(split[0], "-b "+host)
+				banLogDel(split[0], split[1])
+				c.RemoveOption("timed", strconv.Itoa(count))
+				count--
+				c.AddOption("timed", "count", strconv.Itoa(count))
+				c.AddOption(split[0], split[1]+".status", "EXPIRED")
+			}
+		}
+		c.WriteFile("bans.list", 0644, "Ban List")
+		time.Sleep(300000000000)
 	}
-	c.WriteFile("bans.list", 0644, "Ban List")
-	time.Sleep(300000000000)
-	BanManager(conn)
 }

@@ -9,51 +9,51 @@ import (
 	"strconv"
 )
 
-var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
+var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 	// access
-	"flags": flags,
-	"add": add,
+	"flags":  flags,
+	"add":    add,
 	"remove": remove,
-	"list": accesslist,
+	"list":   accesslist,
 
 	// admin
 	"nick": nick,
-	"say": csay,
+	"say":  csay,
 
 	// op
-	"halfop": halfop,
-	"hop": halfop,
-	"op": op,
-	"deop": deop,
-	"dehalfop": dehalfop,
-	"dehop": dehalfop,
-	"voice": voice,
-	"devoice": devoice,
-	"kick": kick,
-	"k": kick,
-	"b": ban,
-	"ban": ban,
-	"unban": unban,
-	"u": unban,
-	"kb": kickban,
-	"topic": topic,
+	"halfop":      halfop,
+	"hop":         halfop,
+	"op":          op,
+	"deop":        deop,
+	"dehalfop":    dehalfop,
+	"dehop":       dehalfop,
+	"voice":       voice,
+	"devoice":     devoice,
+	"kick":        kick,
+	"k":           kick,
+	"b":           ban,
+	"ban":         ban,
+	"unban":       unban,
+	"u":           unban,
+	"kb":          kickban,
+	"topic":       topic,
 	"appendtopic": appendtopic,
-	"part": part,
-	"bans": banList,
-	"banlist": banList,
-	"tb": tempban,
+	"part":        part,
+	"bans":        banList,
+	"banlist":     banList,
+	"tb":          tempban,
 
 	// google
-	"tr": translate,
+	"tr":    translate,
 	"roman": roman,
-	"calc": calc,
+	"calc":  calc,
 
 	// booru
 	"safeloli": booruSafeLoli,
-	"sloli": booruSafeLoli,
-	"futa": booruFuta,
-	"loli": booruLoli,
-	"booru": booruSearch,
+	"sloli":    booruSafeLoli,
+	"futa":     booruFuta,
+	"loli":     booruLoli,
+	"booru":    booruSearch,
 
 	// QDB
 	"aq": quoteAdd,
@@ -65,9 +65,9 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"profile": apProfile,
 	"myanime": apAnimeList,
 	"mymanga": apMangaList,
-	"apnick": apSetNick,
-	"mynick": apMyNick,
-	
+	"apnick":  apSetNick,
+	"mynick":  apMyNick,
+
 	// help
 	"help": helpProcessRequest,
 }
@@ -123,7 +123,7 @@ func handleJoin(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 	if hasAccess(conn, nick, line.Nick, "v") {
-		conn.Mode(line.Args[0], "+v " + line.Nick)
+		conn.Mode(line.Args[0], "+v "+line.Nick)
 	}
 }
 

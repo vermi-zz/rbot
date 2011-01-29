@@ -69,7 +69,7 @@ func flags(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		return
 	}
 
-	flags, _ := auth.String(conn.Network + " " + channel, user)
+	flags, _ := auth.String(conn.Network+" "+channel, user)
 	if flags == "" {
 		say(conn, target, "%s has no flags", user)
 	} else {
@@ -84,7 +84,7 @@ func accesslist(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	}
 
 	owner, err := auth.String(conn.Network, "owner")
-	if err == nil && strings.Contains(owner, args)  {
+	if err == nil && strings.Contains(owner, args) {
 		say(conn, nick.Nick, "%s is the owner", owner)
 	}
 

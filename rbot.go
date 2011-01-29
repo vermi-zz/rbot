@@ -89,7 +89,6 @@ func autojoin(conn *irc.Conn) {
 			}
 		}
 	}
-	go BanManager(conn)
 }
 
 func readConf() {

@@ -9,6 +9,8 @@ import (
 	"crypto/tls"
 	"crypto/rand"
 	"goconfig"
+	"container/list"
+	"strconv"
 )
 
 const confFile = "rbot.conf"
@@ -87,6 +89,7 @@ func autojoin(conn *irc.Conn) {
 			}
 		}
 	}
+	go BanManager(conn)
 }
 
 func readConf() {
@@ -118,4 +121,39 @@ func updateConf(section, option, value string) {
 	}
 	// config.WriteFile destroys the config, so
 	readConf()
+}
+func BanManager(conn *irc.Conn) {
+	config, err := config.ReadDefault("bans.list")
+	if err != nil {
+		panic(fmt.Sprintf("Config error: %s", err))
+	}
+	if !config.HasOption("timed", "count") {
+		BanManager(conn)
+		return
+	}
+	count, err := config.Int("timed", "count")
+	if err != nil || count == 0 {
+		BanManager(conn)
+		return
+	}
+	banlist := list.New()
+	for i := count; i > 0; i++ {
+		ban, _ := config.String("timed", strconv.Itoa(count))
+		_ = banlist.PushBack(ban)
+	}
+	for e := banlist.Front(); e != nil; e.Next() {
+		split := strings.Fields(e.Value.(string))
+		expiry, _ := strconv.Atoi64(split[2])
+		if expiry <= time.Seconds() {
+			host, _ := config.String(split[0], split[1] + ".host")
+			conn.Mode(split[0], "-b " + host)
+			banLogDel(split[0], split[1])
+			config.RemoveOption("timed", strconv.Itoa(count))
+			count--
+			config.AddOption("timed", "count", strconv.Itoa(count))
+			config.AddOption(split[0], split[1] + ".status", "EXPIRED")
+		}
+	}
+	config.WriteFile("bans.list", 0644, "Ban List")
+	BanManager(conn)
 }

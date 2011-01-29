@@ -245,7 +245,8 @@ func banLogAdd(host string, nick string, reason string, channel string, expiry i
 	banCount += 1
 	id := strconv.Itoa(banCount)
 	expires := strconv.Itoa64(expiry)
-	banTime := time.LocalTime().Format("%m/%D/%y @ %H:%M")
+	localtime := time.LocalTime()
+	banTime := localtime.Format("%m/%D/%y @ %H:%M")
 	
 	c.AddOption(channel, "count", id)
 	c.AddOption(channel, id + ".nick", nick)

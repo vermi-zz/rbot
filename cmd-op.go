@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 	config "goconfig"
+	"fmt"
 	"strconv"
 )
 
@@ -132,7 +133,7 @@ func kick(conn *irc.Conn, nick *irc.Nick, args, target string) {
 }
 
 func ban(conn *irc.Conn, nick *irc.Nick, args, target string) {
-	channel, args := parseAccess(conn, nick, target, args, "oh")
+	channel, args := parseAccess(conn, nick, target, args, "o")
 	if channel == "" || args == "" {
 		return
 	}
@@ -157,8 +158,42 @@ func ban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	conn.Mode(channel, modestring)
 }
 
-func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
+func tempban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	channel, args := parseAccess(conn, nick, target, args, "oh")
+	if channel == "" || args == "" {
+		return
+	}
+	ch := conn.GetChannel(channel)
+	if ch == nil {
+		say(conn, target , "%s: Unable to get channel information about %s", nick.Nick, channel)
+		return
+	}
+	args = strings.TrimSpace(args)
+	split := strings.Fields(args)
+	dur, err := strconv.Atoi64(split[1])
+	if err != nil {
+		say(conn, channel, "Format: !tb <nick> <minutes> <reason>")
+		return
+	}
+	n := conn.GetNick(split[0])
+	if n == nil || (split[0] != nick.Nick &&
+		(!hasAccess(conn, nick, channel, "o") && hasAccess(conn, n, channel, "oh"))) {
+		return
+	}
+	conn.Mode(channel, "+b *!*@" + n.Host)
+
+	reason := "(" + nick.Nick + ")"
+	if len(split) == 3 {
+		reason += " " + split[2]
+	}
+	conn.Kick(channel, split[0], reason)
+	expiry := time.Seconds() + dur * 60
+	banLogAdd("*!*@" + n.Host, split[0], reason, channel, expiry)
+}
+	
+
+func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
+	channel, args := parseAccess(conn, nick, target, args, "o")
 	if channel == "" || args == "" {
 		return
 	}
@@ -204,11 +239,12 @@ func banLogDel(channel string, ban string) {
 	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
-func banLogAdd(host string, nick string, reason string, channel string) {
+func banLogAdd(host string, nick string, reason string, channel string, expiry int64) {
 	c, _ := config.ReadDefault("bans.list")
 	banCount, _ := c.Int(channel, "count")
 	banCount += 1
 	id := strconv.Itoa(banCount)
+	expires := strconv.Itoa64(expiry)
 	banTime := time.LocalTime().Format("%m/%D/%y @ %H:%M")
 	
 	c.AddOption(channel, "count", id)
@@ -217,6 +253,20 @@ func banLogAdd(host string, nick string, reason string, channel string) {
 	c.AddOption(channel, id + ".reason", reason)
 	c.AddOption(channel, id + ".time", banTime)
 	c.AddOption(channel, id + ".status", "ACTIVE")
+	if expiry == 0 { c.AddOption(channel, id + ".expiry", expires) }
+	c.WriteFile("bans.list", 0644, "Ban List")
+	handleTempBan(channel, id, expires)
+}
+
+func handleTempBan(channel string, id string, expiry string) {
+	c, _ := config.ReadDefault("bans.list")
+	count := 0
+	if c.HasOption("timed", "count") {
+	count, _ = c.Int("timed", "count")
+	count++
+	} else { count = 1 }
+	c.AddOption("timed", "count", strconv.Itoa(count))
+	c.AddOption("timed", strconv.Itoa(count), channel + " " + id + " " + expiry)
 	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
@@ -260,8 +310,19 @@ func banList(conn *irc.Conn, nick *irc.Nick, args string, target string) {
 		logReason, _ := c.String(channel, id + ".reason")
 		logTime, _ := c.String(channel, id + ".time")
 		logStatus, _ := c.String(channel, id + ".status")
+		timeleft := ""
+		if c.HasOption(channel, id + ".expiry") {
+			logExpiry, _ := c.String(channel, id + ".expiry")
+			end, _ := strconv.Atoi64(logExpiry)
+			end = time.Seconds() - end
+			if end < 0 { continue } else {
+				mins := (end - end % 60) / 60
+				secs := (end % 60)
+				timeleft = fmt.Sprintf("Expires in: %vm%vs", mins, secs)
+			}
+		}
 		
-		say(conn, nick.Nick, "%v: %s [%s] | %s | %s", counter, logTime, logStatus, logNick, logReason)
+		say(conn, nick.Nick, "%v: %s [%s] %s | %s | %s", counter, logTime, logStatus, timeleft, logNick, logReason)
 	}
 }
 
@@ -285,7 +346,7 @@ func kickban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		reason += " " + split[1]
 	}
 	conn.Kick(channel, split[0], reason)
-	banLogAdd("*!*@" + n.Host, split[0], reason, channel)
+	banLogAdd("*!*@" + n.Host, split[0], reason, channel, 0)
 }
 
 func topic(conn *irc.Conn, nick *irc.Nick, args, target string) {

@@ -41,6 +41,7 @@ var commands = map [string]func(*irc.Conn, *irc.Nick, string, string) {
 	"part": part,
 	"bans": banList,
 	"banlist": banList,
+	"tb": tempban,
 
 	// google
 	"tr": translate,

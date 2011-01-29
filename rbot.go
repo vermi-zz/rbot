@@ -89,6 +89,7 @@ func autojoin(conn *irc.Conn) {
 			}
 		}
 	}
+	go BanManager(conn)
 }
 
 func readConf() {
@@ -127,11 +128,13 @@ func BanManager(conn *irc.Conn) {
 		panic(fmt.Sprintf("Config error: %s", err))
 	}
 	if !c.HasOption("timed", "count") {
+		time.Sleep(300000000000)
 		BanManager(conn)
 		return
 	}
 	count, err := c.Int("timed", "count")
 	if err != nil || count == 0 {
+		time.Sleep(300000000000)
 		BanManager(conn)
 		return
 	}

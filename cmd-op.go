@@ -6,7 +6,6 @@ import (
 	"time"
 	config "goconfig"
 	"strconv"
-	"fmt"
 )
 
 func op(conn *irc.Conn, nick *irc.Nick, args, target string) {
@@ -133,7 +132,7 @@ func kick(conn *irc.Conn, nick *irc.Nick, args, target string) {
 }
 
 func ban(conn *irc.Conn, nick *irc.Nick, args, target string) {
-	channel, args := parseAccess(conn, nick, target, args, "oh")
+	channel, args := parseAccess(conn, nick, target, args, "o")
 	if channel == "" || args == "" {
 		return
 	}
@@ -159,7 +158,7 @@ func ban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 }
 
 func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
-	channel, args := parseAccess(conn, nick, target, args, "oh")
+	channel, args := parseAccess(conn, nick, target, args, "o")
 	if channel == "" || args == "" {
 		return
 	}
@@ -201,7 +200,7 @@ func banLogDel(channel string, ban string) {
 	c, err := config.ReadDefault("bans.list")
 	if err != nil { return }
 
-	c.AddOption(channel + " " + ban, "status", "REMOVED")
+	c.AddOption(channel, ban + ".status", "REMOVED")
 	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
@@ -209,15 +208,15 @@ func banLogAdd(host string, nick string, reason string, channel string) {
 	c, _ := config.ReadDefault("bans.list")
 	banCount, _ := c.Int(channel, "count")
 	banCount += 1
-	banSection := fmt.Sprintf("%s %v", channel, banCount)
-	banTime := time.LocalTime().String()
+	id := strconv.Itoa(banCount)
+	banTime := time.LocalTime().Format("%m/%D/%y @ %H:%M")
 	
-	c.AddOption(channel, "count", strconv.Itoa(banCount))
-	c.AddOption(banSection, "nick", nick)
-	c.AddOption(banSection, "host", host)
-	c.AddOption(banSection, "reason", reason)
-	c.AddOption(banSection, "time", banTime)
-	c.AddOption(banSection, "status", "ACTIVE")
+	c.AddOption(channel, "count", id)
+	c.AddOption(channel, id + ".nick", nick)
+	c.AddOption(channel, id + ".host", host)
+	c.AddOption(channel, id + ".reason", reason)
+	c.AddOption(channel, id + ".time", banTime)
+	c.AddOption(channel, id + ".status", "ACTIVE")
 	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
@@ -256,14 +255,13 @@ func banList(conn *irc.Conn, nick *irc.Nick, args string, target string) {
 	if banCount == howMany { howMany = 0 } else { howMany = banCount - howMany }
 	
 	for counter := banCount; counter > howMany; counter -= 1 {
-		logSection := channel + " " + strconv.Itoa(counter)
-		logNick, _ := c.String(logSection, "nick")
-		logHost, _ := c.String(logSection, "host")
-		logReason, _ := c.String(logSection, "reason")
-		logTime, _ := c.String(logSection, "time")
-		logStatus, _ := c.String(logSection, "status")
+		id := strconv.Itoa(counter)
+		logNick, _ := c.String(channel, id + ".nick")
+		logReason, _ := c.String(channel, id + ".reason")
+		logTime, _ := c.String(channel, id + ".time")
+		logStatus, _ := c.String(channel, id + ".status")
 		
-		say(conn, nick.Nick, "Ban #%v [%s]: %s, %s - %s - %s", counter, logStatus, logNick, logHost, logReason, logTime)
+		say(conn, nick.Nick, "%v: %s [%s] | %s | %s", counter, logTime, logStatus, logNick, logReason)
 	}
 }
 

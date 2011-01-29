@@ -169,7 +169,7 @@ func tempban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		return
 	}
 	args = strings.TrimSpace(args)
-	split := strings.Fields(args)
+	split := strings.Split(args, " ", 3)
 	dur, err := strconv.Atoi64(split[1])
 	if err != nil {
 		say(conn, channel, "Format: !tb <nick> <minutes> <reason>")

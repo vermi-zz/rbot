@@ -19,6 +19,7 @@ var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 	// admin
 	"nick": nick,
 	"say":  csay,
+	"restart": restart,
 
 	// op
 	"halfop":      halfop,

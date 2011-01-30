@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 	config "goconfig"
-	"fmt"
 	"strconv"
 )
 
@@ -174,7 +173,6 @@ func tempban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if dur < 5 {
 		dur = 5
 		split[1] = "5"
-		say(conn, channel, "Defaulting to the minimum five minute ban.")
 	}
 	if err != nil {
 		say(conn, channel, "Format: !tb <nick> <minutes> <reason>")
@@ -274,6 +272,7 @@ func banLogAdd(host string, nick string, reason string, channel string, expiry i
 }
 
 func handleTempBan(channel string, id string, expiry string) {
+	channel = strings.Trim(channel, "#")
 	c, _ := config.ReadDefault("bans.list")
 	count := 0
 	if c.HasOption("timed", "count") {
@@ -335,21 +334,7 @@ func banList(conn *irc.Conn, nick *irc.Nick, args string, target string) {
 		logReason, _ := c.String(channel, id+".reason")
 		logTime, _ := c.String(channel, id+".time")
 		logStatus, _ := c.String(channel, id+".status")
-		timeleft := ""
-		if c.HasOption(channel, id+".expiry") {
-			logExpiry, _ := c.String(channel, id+".expiry")
-			end, _ := strconv.Atoi64(logExpiry)
-			end = time.Seconds() - end
-			if end < 0 {
-				continue
-			} else {
-				mins := (end - end%60) / 60
-				secs := (end % 60)
-				timeleft = fmt.Sprintf("Expires in: %vm%vs", mins, secs)
-			}
-		}
-
-		say(conn, nick.Nick, "%v: %s [%s] %s | %s | %s", counter, logTime, logStatus, timeleft, logNick, logReason)
+		say(conn, nick.Nick, "%v: %s [%s] | %s | %s", counter, logTime, logStatus, logNick, logReason)
 	}
 }
 

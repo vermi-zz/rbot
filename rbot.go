@@ -124,6 +124,7 @@ func updateConf(section, option, value string) {
 }
 func BanManager(conn *irc.Conn) {
 	for {
+		time.Sleep(60000000000)
 		c, err := config.ReadDefault("bans.list")
 		if err != nil {
 			panic(fmt.Sprintf("Config error: %s", err))
@@ -136,25 +137,24 @@ func BanManager(conn *irc.Conn) {
 			continue
 		}
 		banlist := make([]string, count)
-		for i := count; i > 0; i-- {
-			ban, _ := c.String("timed", strconv.Itoa(i))
-			banlist[i] = ban
+		for i := 0; i < count; i++ {
+			squid := strconv.Itoa(count - i)
+			banlist[i], _ = c.String("timed", squid)
 		}
-		for e := len(banlist); e > 0; e-- {
-			fmt.Println(banlist[e])
-			split := strings.Fields(banlist[e])
+		for e := count; e > 0; e-- {
+			split := strings.Split(banlist[e - 1], " ", 3)
 			expiry, _ := strconv.Atoi64(split[2])
 			if expiry <= time.Seconds() {
-				host, _ := c.String(split[0], split[1]+".host")
-				conn.Mode(split[0], "-b "+host)
-				banLogDel(split[0], split[1])
+				c, _ = config.ReadDefault("bans.list")
+				host, _ := c.String("#" + split[0], split[1]+".host")
+				conn.Mode("#" + split[0], "-b "+host)
+				banLogDel("#" + split[0], split[1])
 				c.RemoveOption("timed", strconv.Itoa(count))
-				count--
+				count -= 1
 				c.AddOption("timed", "count", strconv.Itoa(count))
-				c.AddOption(split[0], split[1]+".status", "EXPIRED")
+				c.AddOption("#" + split[0], split[1]+".status", "EXPIRED")
+				c.WriteFile("bans.list", 0644, "Ban List")
 			}
 		}
-		c.WriteFile("bans.list", 0644, "Ban List")
-		time.Sleep(300000000000)
 	}
 }

@@ -103,14 +103,6 @@ Imageboard Search Commands:
 - `sloli`: returns a random work-safe loli image
 - `futa`: returns a random futa image
 
-QDB Commands:
-
-- `aq < raylu> blah`: Submits "< raylu> blah" as a quote to ChalamiuS's QDB.
-	* Use `\n` to separate new lines, for example: `aq < raylu> blah\n< vermi> blah!`
-- `gq 10`: Gets quote with ID 10 from ChalamiuS's QDB.
-- `rq`: Gets a random quote from ChalamiuS's QDB
-- `sq blah`: searches the QDB for 'blah'. Currently only supports one-word searches.
-
 Anime-planet.com Commands:
 
 - `apnick vermi`: records my site username as vermi (useful if I change nicks a lot)

@@ -56,12 +56,6 @@ var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 	"loli":     booruLoli,
 	"booru":    booruSearch,
 
-	// QDB
-	"aq": quoteAdd,
-	"gq": quoteGet,
-	"rq": quoteRand,
-	"sq": quoteSearch,
-
 	// anime-planet.com
 	"profile": apProfile,
 	"myanime": apAnimeList,

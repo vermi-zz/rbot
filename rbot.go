@@ -12,6 +12,7 @@ import (
 )
 
 const confFile = "rbot.conf"
+
 var trigger string
 var sections []string
 var conf *config.Config
@@ -29,7 +30,7 @@ func main() {
 		}
 	}
 
-	<- make(chan bool)
+	<-make(chan bool)
 }
 
 func connect(network string) {
@@ -54,7 +55,7 @@ func connect(network string) {
 			fmt.Printf("Connected to %s!\n", conn.Host)
 
 			if len(nickserv) > 0 {
-				conn.Privmsg("NickServ", "IDENTIFY " + nickserv)
+				conn.Privmsg("NickServ", "IDENTIFY "+nickserv)
 			} else {
 				autojoin(conn)
 			}
@@ -92,7 +93,7 @@ func autojoin(conn *irc.Conn) {
 func readConf() {
 	var err os.Error
 	conf, err = config.ReadDefault("rbot.conf")
-	if (err != nil) {
+	if err != nil {
 		fmt.Printf("Config error: %s\n", err)
 		os.Exit(1)
 	}

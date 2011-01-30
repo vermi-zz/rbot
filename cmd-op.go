@@ -15,7 +15,7 @@ func op(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	}
 
 	if args == "" {
-		conn.Mode(channel, "+o " + nick.Nick)
+		conn.Mode(channel, "+o "+nick.Nick)
 	} else {
 		ops := strings.TrimSpace(args)
 		count := strings.Count(ops, " ") + 1
@@ -31,7 +31,7 @@ func deop(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	}
 
 	if args == "" {
-		conn.Mode(channel, "-o " + nick.Nick)
+		conn.Mode(channel, "-o "+nick.Nick)
 	} else {
 		ops := strings.TrimSpace(args)
 		count := strings.Count(ops, " ") + 1
@@ -47,7 +47,7 @@ func halfop(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	}
 
 	if args == "" {
-		conn.Mode(channel, "+h " + nick.Nick)
+		conn.Mode(channel, "+h "+nick.Nick)
 	} else {
 		// giving others +h requires o
 		if !hasAccess(conn, nick, channel, "o") {
@@ -67,7 +67,7 @@ func dehalfop(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	}
 
 	if args == "" {
-		conn.Mode(channel, "-h " + nick.Nick)
+		conn.Mode(channel, "-h "+nick.Nick)
 	} else {
 		if !hasAccess(conn, nick, channel, "o") {
 			return
@@ -86,7 +86,7 @@ func voice(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	}
 
 	if args == "" {
-		conn.Mode(channel, "+v " + nick.Nick)
+		conn.Mode(channel, "+v "+nick.Nick)
 	} else {
 		voices := strings.TrimSpace(args)
 		count := strings.Count(voices, " ") + 1
@@ -102,7 +102,7 @@ func devoice(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	}
 
 	if args == "" {
-		conn.Mode(channel, "-v " + nick.Nick)
+		conn.Mode(channel, "-v "+nick.Nick)
 	} else {
 		voices := strings.TrimSpace(args)
 		count := strings.Count(voices, " ") + 1
@@ -140,7 +140,7 @@ func ban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	bans := strings.TrimSpace(args)
 	split := strings.Fields(bans)
 	// turn nicks into *!*@host
-	for i, ban := range(split) {
+	for i, ban := range split {
 		if strings.Index(ban, "@") != -1 {
 			// already a host
 			continue
@@ -165,12 +165,12 @@ func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 
 	ch := conn.GetChannel(channel)
 	if ch == nil {
-		say(conn, target , "%s: Unable to get channel information about %s", nick.Nick, channel)
+		say(conn, target, "%s: Unable to get channel information about %s", nick.Nick, channel)
 		return
 	}
 	bans := strings.TrimSpace(args)
 	split := strings.Fields(bans)
-	for i, ban := range(split) {
+	for i, ban := range split {
 		if strings.Index(ban, "@") != -1 {
 			// it's already a host, do nothing
 			continue
@@ -182,14 +182,18 @@ func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 			// the user is in one of our channels, here's our best guess
 			split[i] = "*!*@" + n.Host
 		} else if _, err := strconv.Atoi(ban); err == nil {
-                        // the ban is an integer, let's find it in the banlist
-                        c, err := config.ReadDefault("bans.list")
-                        if err != nil { return }
+			// the ban is an integer, let's find it in the banlist
+			c, err := config.ReadDefault("bans.list")
+			if err != nil {
+				return
+			}
 
-                        host, err := c.String(channel + " " + ban, "host")
-                        if err == nil { split[i] = host }
+			host, err := c.String(channel+" "+ban, "host")
+			if err == nil {
+				split[i] = host
+			}
 			banLogDel(channel, ban)
-                }
+		}
 	}
 	bans = strings.Join(split, " ")
 	modestring := "-" + strings.Repeat("b", len(bans)) + " " + bans
@@ -198,9 +202,11 @@ func unban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 
 func banLogDel(channel string, ban string) {
 	c, err := config.ReadDefault("bans.list")
-	if err != nil { return }
+	if err != nil {
+		return
+	}
 
-	c.AddOption(channel, ban + ".status", "REMOVED")
+	c.AddOption(channel, ban+".status", "REMOVED")
 	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
@@ -210,13 +216,13 @@ func banLogAdd(host string, nick string, reason string, channel string) {
 	banCount += 1
 	id := strconv.Itoa(banCount)
 	banTime := time.LocalTime().Format("%m/%D/%y @ %H:%M")
-	
+
 	c.AddOption(channel, "count", id)
-	c.AddOption(channel, id + ".nick", nick)
-	c.AddOption(channel, id + ".host", host)
-	c.AddOption(channel, id + ".reason", reason)
-	c.AddOption(channel, id + ".time", banTime)
-	c.AddOption(channel, id + ".status", "ACTIVE")
+	c.AddOption(channel, id+".nick", nick)
+	c.AddOption(channel, id+".host", host)
+	c.AddOption(channel, id+".reason", reason)
+	c.AddOption(channel, id+".time", banTime)
+	c.AddOption(channel, id+".status", "ACTIVE")
 	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
@@ -234,33 +240,41 @@ func banList(conn *irc.Conn, nick *irc.Nick, args string, target string) {
 	}
 
 	banCount, _ := c.Int(channel, "count")
-	
+
 	if banCount == 0 {
 		say(conn, channel, "There are no bans for %s.", channel)
 		return
 	}
-	
+
 	howMany, err := strconv.Atoi(args)
-	if err != nil { howMany = 10 }
+	if err != nil {
+		howMany = 10
+	}
 
 	if howMany == 0 {
 		say(conn, channel, "Why would you ask me to show you nothing? Sheesh.")
 		return
-	 }
-        if howMany < 0 || howMany > banCount { howMany = banCount }
-	
+	}
+	if howMany < 0 || howMany > banCount {
+		howMany = banCount
+	}
+
 	say(conn, nick.Nick, "There are a total of %v bans in the log for %s.", banCount, channel)
 	say(conn, nick.Nick, "Displaying the last %v bans.", howMany)
 
-	if banCount == howMany { howMany = 0 } else { howMany = banCount - howMany }
-	
+	if banCount == howMany {
+		howMany = 0
+	} else {
+		howMany = banCount - howMany
+	}
+
 	for counter := banCount; counter > howMany; counter -= 1 {
 		id := strconv.Itoa(counter)
-		logNick, _ := c.String(channel, id + ".nick")
-		logReason, _ := c.String(channel, id + ".reason")
-		logTime, _ := c.String(channel, id + ".time")
-		logStatus, _ := c.String(channel, id + ".status")
-		
+		logNick, _ := c.String(channel, id+".nick")
+		logReason, _ := c.String(channel, id+".reason")
+		logTime, _ := c.String(channel, id+".time")
+		logStatus, _ := c.String(channel, id+".status")
+
 		say(conn, nick.Nick, "%v: %s [%s] | %s | %s", counter, logTime, logStatus, logNick, logReason)
 	}
 }
@@ -278,14 +292,14 @@ func kickban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		(!hasAccess(conn, nick, channel, "o") && hasAccess(conn, n, channel, "oh"))) {
 		return
 	}
-	conn.Mode(channel, "+b *!*@" + n.Host)
+	conn.Mode(channel, "+b *!*@"+n.Host)
 
 	reason := "(" + nick.Nick + ")"
 	if len(split) == 2 {
 		reason += " " + split[1]
 	}
 	conn.Kick(channel, split[0], reason)
-	banLogAdd("*!*@" + n.Host, split[0], reason, channel)
+	banLogAdd("*!*@"+n.Host, split[0], reason, channel)
 }
 
 func topic(conn *irc.Conn, nick *irc.Nick, args, target string) {
@@ -320,7 +334,7 @@ func appendtopic(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		say(conn, nick.Nick, "New basetopic: %s", basetopic)
 		updateConf(section, "basetopic", basetopic)
 	}
-	conn.Topic(channel, basetopic + args)
+	conn.Topic(channel, basetopic+args)
 }
 
 func part(conn *irc.Conn, nick *irc.Nick, args, target string) {

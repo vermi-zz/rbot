@@ -1,7 +1,7 @@
 package main
 
-import(
-	irc "github.com/fluffle/goirc/client"
+import (
+	irc    "github.com/fluffle/goirc/client"
 	config "goconfig"
 	"http"
 	"strings"
@@ -29,7 +29,7 @@ func apUserExists(username string) (isuser bool) {
 
 func apReadConfig(nick *irc.Nick) (apnick string) {
 	c, _ := config.ReadDefault(apConfigFile)
-	
+
 	hostmask := user(nick)
 
 	apnick, _ = c.String(hostmask, "nick")
@@ -40,7 +40,7 @@ func apReadConfig(nick *irc.Nick) (apnick string) {
 func apProfile(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	username := strings.TrimSpace(arg)
 
-	if username  == "" {
+	if username == "" {
 		username = apReadConfig(nick)
 	}
 
@@ -52,20 +52,20 @@ func apProfile(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 		say(conn, channel, "%s's profile: http://www.anime-planet.com/users/%s", username, username)
 		return
 	}
-	
+
 	say(conn, channel, "The user '%s' doesn't exist. Try again.", username)
 }
 
 func apAnimeList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
-        username := strings.TrimSpace(arg)
+	username := strings.TrimSpace(arg)
 
-        if username == "" {
-                username = apReadConfig(nick)
-        }
+	if username == "" {
+		username = apReadConfig(nick)
+	}
 
-        if username == "" {
-                username = nick.Nick
-        }
+	if username == "" {
+		username = nick.Nick
+	}
 
 	if apUserExists(username) {
 		say(conn, channel, "%s's anime list: http://www.anime-planet.com/users/%s/anime", username, username)
@@ -76,15 +76,15 @@ func apAnimeList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 }
 
 func apMangaList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
-        username := strings.TrimSpace(arg)
+	username := strings.TrimSpace(arg)
 
-        if username == "" {
-                username = apReadConfig(nick)
-        }
+	if username == "" {
+		username = apReadConfig(nick)
+	}
 
-        if username == "" {
-                username = nick.Nick
-        }
+	if username == "" {
+		username = nick.Nick
+	}
 
 	if apUserExists(username) {
 		say(conn, channel, "%s's manga list: http://www.anime-planet.com/users/%s/manga", username, username)
@@ -104,7 +104,7 @@ func apSetNick(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 
 	if apUserExists(arg) {
 		c, _ := config.ReadDefault(apConfigFile)
-	
+
 		hostmask := user(nick)
 
 		c.AddOption(hostmask, "nick", arg)

@@ -13,37 +13,41 @@ func booruDoSearch(conn *irc.Conn, channel string, site string) (status string) 
 		return "DOWN"
 	}
 
-        type SecondResponse struct {
-                File_url string "attr"
-                Rating string "attr"
-	 }
+	type SecondResponse struct {
+		File_url string "attr"
+		Rating   string "attr"
+	}
 
-        type FirstResponse struct {
-                Response SecondResponse
-        }
+	type FirstResponse struct {
+		Response SecondResponse
+	}
 
-        type IbSearch struct {
-                Response FirstResponse
-        }
+	type IbSearch struct {
+		Response FirstResponse
+	}
 
-        var url IbSearch
+	var url IbSearch
 
-        err = xml.Unmarshal(stuff.Body, &url)
-        if err != nil {
-       		return "FAIL"
-        }
+	err = xml.Unmarshal(stuff.Body, &url)
+	if err != nil {
+		return "FAIL"
+	}
 
-        rating := ""
-        switch {
-                case url.Response.Response.Rating == "s": rating = "[Rating: Safe] "
-		case url.Response.Response.Rating == "q": rating = "[Rating: Questionable] "
-		case url.Response.Response.Rating == "e": rating = "[Rating: Explicit] "
-		case url.Response.Response.Rating == "0": rating = "[Not Rated] "
-        }
+	rating := ""
+	switch {
+	case url.Response.Response.Rating == "s":
+		rating = "[Rating: Safe] "
+	case url.Response.Response.Rating == "q":
+		rating = "[Rating: Questionable] "
+	case url.Response.Response.Rating == "e":
+		rating = "[Rating: Explicit] "
+	case url.Response.Response.Rating == "0":
+		rating = "[Not Rated] "
+	}
 
-        result := rating + shorten(url.Response.Response.File_url)
+	result := rating + shorten(url.Response.Response.File_url)
 
-        say(conn, channel, "%s", result)
+	say(conn, channel, "%s", result)
 
 	return "OK"
 }
@@ -66,8 +70,10 @@ func booruSearch(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	}
 
 	switch {
-		case status == "FAIL": say(conn, channel, "I looked and looked and just couldn't find anything. Try again in a bit.")
-		case status == "DOWN": say(conn, channel, "booru search is down. If this keeps happening, please inform the owner.")
+	case status == "FAIL":
+		say(conn, channel, "I looked and looked and just couldn't find anything. Try again in a bit.")
+	case status == "DOWN":
+		say(conn, channel, "booru search is down. If this keeps happening, please inform the owner.")
 	}
 }
 
@@ -78,34 +84,40 @@ func booruFuta(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 
 	status := booruDoSearch(conn, channel, site)
 
-        switch {
-                case status == "FAIL": say(conn, channel, "%s, you are a pervert! No futa for you! >:|", nick.Nick)
-                case status == "DOWN": say(conn, channel, "booru search is down. If this keeps happening, please inform the owner.")
-        }
+	switch {
+	case status == "FAIL":
+		say(conn, channel, "%s, you are a pervert! No futa for you! >:|", nick.Nick)
+	case status == "DOWN":
+		say(conn, channel, "booru search is down. If this keeps happening, please inform the owner.")
+	}
 }
 
 func booruLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
-        tag = "loli*"
-        tag = http.URLEscape(tag)
-        site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
+	tag = "loli*"
+	tag = http.URLEscape(tag)
+	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
-        status := booruDoSearch(conn, channel, site)
+	status := booruDoSearch(conn, channel, site)
 
-        switch {
-                case status == "FAIL": say(conn, channel, "%s, you are a pervert! No loli for you! >:|", nick.Nick)
-                case status == "DOWN": say(conn, channel, "booru search is down. If this keeps happening, please inform the owner.")
-        }
+	switch {
+	case status == "FAIL":
+		say(conn, channel, "%s, you are a pervert! No loli for you! >:|", nick.Nick)
+	case status == "DOWN":
+		say(conn, channel, "booru search is down. If this keeps happening, please inform the owner.")
+	}
 }
 
 func booruSafeLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
-        tag = "+loli* rating:s"
-        tag = http.URLEscape(tag)
-        site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
+	tag = "+loli* rating:s"
+	tag = http.URLEscape(tag)
+	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
-        status := booruDoSearch(conn, channel, site)
+	status := booruDoSearch(conn, channel, site)
 
-        switch {
-                case status == "FAIL": say(conn, channel, "Aww, I couldn't find anything this time... ;-;")
-                case status == "DOWN": say(conn, channel, "booru search is down. If this keeps happening, please inform the owner.")
-        }
+	switch {
+	case status == "FAIL":
+		say(conn, channel, "Aww, I couldn't find anything this time... ;-;")
+	case status == "DOWN":
+		say(conn, channel, "booru search is down. If this keeps happening, please inform the owner.")
+	}
 }

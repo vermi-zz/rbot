@@ -142,17 +142,17 @@ func BanManager(conn *irc.Conn) {
 			banlist[i], _ = c.String("timed", squid)
 		}
 		for e := count; e > 0; e-- {
-			split := strings.Split(banlist[e - 1], " ", 3)
+			split := strings.Split(banlist[e-1], " ", 3)
 			expiry, _ := strconv.Atoi64(split[2])
 			if expiry <= time.Seconds() {
 				c, _ = config.ReadDefault("bans.list")
-				host, _ := c.String("#" + split[0], split[1]+".host")
-				conn.Mode("#" + split[0], "-b "+host)
-				banLogDel("#" + split[0], split[1])
+				host, _ := c.String("#"+split[0], split[1]+".host")
+				conn.Mode("#"+split[0], "-b "+host)
+				banLogDel("#"+split[0], split[1])
 				c.RemoveOption("timed", strconv.Itoa(count))
 				count -= 1
 				c.AddOption("timed", "count", strconv.Itoa(count))
-				c.AddOption("#" + split[0], split[1]+".status", "EXPIRED")
+				c.AddOption("#"+split[0], split[1]+".status", "EXPIRED")
 				c.WriteFile("bans.list", 0644, "Ban List")
 			}
 		}

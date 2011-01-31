@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+const binName = "rbot"
+
 func nick(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if len(args) == 0 {
 		return
@@ -27,10 +29,15 @@ func restart(conn *irc.Conn, nick *irc.Nick, args, channel string) {
 	owner, _ := auth.String(conn.Network, "owner")
 	if owner == user(nick) {
 		here, _ := os.Getwd()
+		binary, err := exec.LookPath("./" + binName)
+		if err != nil {
+			say(conn, channel, "Could not find binary.")
+			return
+		}
 		argv := []string{""}
 		envv := []string{""}
 		say(conn, channel, "Restarting.")
-		_, err := exec.Run(os.Args[0], argv, envv, here, exec.PassThrough, exec.PassThrough, exec.PassThrough)
+		_, err = exec.Run(binary, argv, envv, here, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
 		if err != nil {
 			say(conn, channel, "Unable to start new process.")
 			return

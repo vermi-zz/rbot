@@ -153,6 +153,7 @@ func BanManager(conn *irc.Conn) {
 				count -= 1
 				c.AddOption("timed", "count", strconv.Itoa(count))
 				c.AddOption("#"+split[0], split[1]+".status", "EXPIRED")
+				c.RemoveOption("#"+split[0], split[1]+".timer")
 				c.WriteFile("bans.list", 0644, "Ban List")
 			}
 		}

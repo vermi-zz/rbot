@@ -246,6 +246,13 @@ func banLogDel(channel string, ban string) {
 	}
 
 	c.AddOption(channel, ban+".status", "REMOVED")
+	if c.HasOption(channel, ban+".timer") {
+		timer, _ := c.String(channel, ban+".timer")
+		tcount, _ := c.Int("timed", timer)
+		c.AddOption("timed", "count", strconv.Itoa(tcount-1))
+		c.RemoveOption("timed", timer)
+		c.RemoveOption(channel, ban+".timer")
+	}
 	c.WriteFile("bans.list", 0644, "Ban List")
 }
 
@@ -281,6 +288,7 @@ func handleTempBan(channel string, id string, expiry string) {
 	} else {
 		count = 1
 	}
+	c.AddOption("#"+channel, id+".timer", strconv.Itoa(count))
 	c.AddOption("timed", "count", strconv.Itoa(count))
 	c.AddOption("timed", strconv.Itoa(count), channel+" "+id+" "+expiry)
 	c.WriteFile("bans.list", 0644, "Ban List")

@@ -4,6 +4,7 @@ import (
 	irc "github.com/fluffle/goirc/client"
 	"exec"
 	"os"
+	"time"
 )
 
 const binName = "rbot"
@@ -36,12 +37,13 @@ func restart(conn *irc.Conn, nick *irc.Nick, args, channel string) {
 		}
 		argv := []string{""}
 		envv := []string{""}
-		say(conn, channel, "Restarting.")
 		_, err = exec.Run(binary, argv, envv, here, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
 		if err != nil {
 			say(conn, channel, "Unable to start new process.")
 			return
 		}
+		conn.Quit("Restarting.")
+		time.Sleep(50)
 		os.Exit(0)
 	}
 }

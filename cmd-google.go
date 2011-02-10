@@ -172,7 +172,6 @@ func parseCalc(output string) string {
 	unquote = html.UnescapeString(unquote)
 	unquote = strings.Replace(unquote, "<sup>", "^(", -1)
 	unquote = strings.Replace(unquote, "</sup>", ")", -1)
-	unquote = strings.Replace(output, "�", ",", -1) // ew
 	return unquote
 }
 

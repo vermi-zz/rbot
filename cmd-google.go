@@ -169,7 +169,11 @@ func parseCalc(output string) string {
 	if err != nil {
 		return ""
 	}
-	return html.UnescapeString(unquote)
+	unquote = html.UnescapeString(unquote)
+	unquote = strings.Replace(unquote, "<sup>", "^(", -1)
+	unquote = strings.Replace(unquote, "</sup>", ")", -1)
+	unquote = strings.Replace(output, "�", ",", -1) // ew
+	return unquote
 }
 
 // please disregard the reproduction of src/pkg/http/client.go:send below

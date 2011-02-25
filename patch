@@ -1,0 +1,77 @@
+diff --git a/rbot.go b/rbot.go
+index 469b9a3..5db2f0c 100644
+--- a/rbot.go
++++ b/rbot.go
+@@ -123,40 +123,37 @@ func updateConf(section, option, value string) {
+    readConf()
+ }
+ func BanManager(conn *irc.Conn) {
+-   c, err := config.ReadDefault("bans.list")
+-   if err != nil {
+-       panic(fmt.Sprintf("Config error: %s", err))
+-   }
+-   if !c.HasOption("timed", "count") {
+-       time.Sleep(300000000000)
+-       BanManager(conn)
+-       return
+-   }
+-   count, err := c.Int("timed", "count")
+-   if err != nil || count == 0 {
++   for {
+        time.Sleep(300000000000)
+-       BanManager(conn)
+-       return
+-   }
+-   banlist := list.New()
+-   for i := count; i > 0; i++ {
+-       ban, _ := c.String("timed", strconv.Itoa(count))
+-       _ = banlist.PushBack(ban)
+-   }
+-   for e := banlist.Front(); e != nil; e.Next() {
+-       split := strings.Fields(e.Value.(string))
+-       expiry, _ := strconv.Atoi64(split[2])
+-       if expiry <= time.Seconds() {
+-           host, _ := c.String(split[0], split[1] + ".host")
+-           conn.Mode(split[0], "-b " + host)
+-           banLogDel(split[0], split[1])
+-           c.RemoveOption("timed", strconv.Itoa(count))
+-           count--
+-           c.AddOption("timed", "count", strconv.Itoa(count))
+-           c.AddOption(split[0], split[1] + ".status", "EXPIRED")
++       c, err := config.ReadDefault("bans.list")
++       if err != nil {
++           panic(fmt.Sprintf("Config error: %s", err))
++       }
++       if !c.HasOption("timed", "count") {
++           continue
++       }
++       count, err := c.Int("timed", "count")
++       if err != nil || count == 0 {
++           continue
++       }
++       banlist := list.New()
++       for i := count; i > 0; i++ {
++           ban, _ := c.String("timed", strconv.Itoa(count))
++           _ = banlist.PushBack(ban)
++       }
++       for e := banlist.Front(); e != nil; e.Next() {
++           split := strings.Fields(e.Value.(string))
++           expiry, _ := strconv.Atoi64(split[2])
++           if expiry <= time.Seconds() {
++               host, _ := c.String(split[0], split[1] + ".host")
++               conn.Mode(split[0], "-b " + host)
++               banLogDel(split[0], split[1])
++               c.RemoveOption("timed", strconv.Itoa(count))
++               count--
++               c.AddOption("timed", "count", strconv.Itoa(count))
++               c.AddOption(split[0], split[1] + ".status", "EXPIRED")
++           }
+        }
++       c.WriteFile("bans.list", 0644, "Ban List")
+    }
+-   c.WriteFile("bans.list", 0644, "Ban List")
+-   time.Sleep(300000000000)
+-   BanManager(conn)
+-}
+\ No newline at end of file
++}

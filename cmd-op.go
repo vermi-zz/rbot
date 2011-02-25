@@ -276,7 +276,9 @@ func banLogAdd(host string, nick string, reason string, channel string, expiry i
 		c.AddOption(channel, id+".expiry", expires)
 	}
 	c.WriteFile("bans.list", 0644, "Ban List")
-	handleTempBan(channel, id, expires)
+	if expiry > 0 {
+		handleTempBan(channel, id, expires)
+	}
 }
 
 func handleTempBan(channel string, id string, expiry string) {

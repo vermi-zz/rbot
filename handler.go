@@ -88,6 +88,13 @@ func handlePrivmsg(conn *irc.Conn, line *irc.Line) {
 				video = video[0:end]
 			}
 			youtube(conn, nick, video, target)
+		} else if bitly := strings.Index(line.Args[1], "bit.ly/"); bitly > -1 {
+			array := strings.Split(line.Args[1], " ", -1)
+			for i := 0; i < len(array); i++ {
+				if strings.Contains(array[i], "bit.ly/") {
+					bitlyExpand(conn, nick, array[i], target)
+				}
+			}
 		} else {
 			command(conn, nick, line.Args[1], target)
 		}
@@ -218,6 +225,15 @@ func youtube(conn *irc.Conn, nick *irc.Nick, video, channel string) {
 	} else {
 		say(conn, channel, "%s's video: %s", nick.Nick, yte.Title)
 	}
+}
+
+func bitlyExpand (conn *irc.Conn, nick *irc.Nick, short string, target string) {
+	long := expand(short)
+	if long == "NOT_FOUND" {
+		return
+	}
+
+	say(conn, target, "%s's link: %s", nick.Nick, long)
 }
 
 // this allows target to be a channel or a privmsg in which the channel is the first argument

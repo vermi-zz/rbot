@@ -9,7 +9,7 @@ GOFILES=rbot.go handler.go auth.go bitly.go cmd-access.go cmd-admin.go cmd-op.go
 
 include $(GOROOT)/src/Make.cmd
 
-all: rbot.conf auth.conf
+all: rbot.conf auth.conf bans.list
 
 rbot.conf: rbot.conf.example
 	@if [ -f $@ ] ; then \
@@ -25,4 +25,10 @@ auth.conf: auth.conf.example
 	else \
 		echo cp $< $@ ; \
 		cp $< $@ ; \
+	fi
+
+bans.list:
+	@if [ ! -f $@ ] ; then \
+		touch $@ ; \
+		echo "created $@" ; \
 	fi

@@ -19,6 +19,7 @@ func helpGetHelp(conn *irc.Conn, topic string, channel string) {
 
 	var text []string
 	content, _ := c.String(topic, "content")
+	content = strings.Replace(content, "{trigger}", trigger, -1)
 	text = strings.Split(content, "\n", -1)
 
 	for _, out := range text {

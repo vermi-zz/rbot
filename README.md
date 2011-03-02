@@ -17,8 +17,6 @@ rbot.conf and auth.conf will be copied. Configure those and then run the bot:
 
 	./rbot
 
-For online help to display properly, be sure the "trigger" properties in rbot.conf and help.conf are both the same.
-
 ### Flags
 
 Access is configured in auth.conf, is per-channel, based on ident and host; nick is ignored. The owner is configured per server and other access is configured per channel. Owners can use any commands. Ignores are checked before access.

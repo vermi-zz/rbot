@@ -22,7 +22,7 @@ func helpGetHelp(conn *irc.Conn, topic string, channel string) {
 	text = strings.Split(content, "\n", -1)
 
 	for _, out := range text {
-		say(conn, channel, "%s", out)
+		say(conn, channel, out)
 	}
 }
 
@@ -33,7 +33,7 @@ func helpProcessRequest(conn *irc.Conn, nick *irc.Nick, topic string, channel st
 
 	if topic == "" {
 		say(conn, channel, "Syntax is !help <topic>. Valid topics are:")
-		say(conn, channel, "%s", validTopics)
+		say(conn, channel, validTopics)
 	}
 
 	topic = strings.ToLower(topic)
@@ -43,7 +43,7 @@ func helpProcessRequest(conn *irc.Conn, nick *irc.Nick, topic string, channel st
 		return
 	} else {
 		say(conn, channel, "%s is not a valid help topic. Valid topics are:", topic)
-		say(conn, channel, "%s", validTopics)
+		say(conn, channel, validTopics)
 		return
 	}
 }

@@ -47,7 +47,7 @@ func booruDoSearch(conn *irc.Conn, channel string, site string) (status string) 
 
 	result := rating + shorten(url.Response.Response.File_url)
 
-	say(conn, channel, "%s", result)
+	say(conn, channel, result)
 
 	return "OK"
 }

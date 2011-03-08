@@ -149,25 +149,19 @@ func roll(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	}
 
 	results := []string{}
+	total := 0
 
 	for i := x; i > 0; i-- {
-		random := rand.Intn(y - 1)
-		random++
-
+		random := rand.Intn(y - 1) + 1
+		total += random
 		results = append(results, strconv.Itoa(random))
 	}
 
-	final := strings.Join(results, ", ")
-	total := 0
-
-	for i := 0; i < len(results); i++ {
-		tmp, _ := strconv.Atoi(results[i])
-		total = total + tmp
-	}
+	tmp := strings.Join(results, ", ")
 
 	if x > 10 {
 		say(conn, channel, "%s rolls %dd%d for a total of %d", nick.Nick, x, y, total)
 	} else {
-		say(conn, channel, "%s rolls %dd%d: %s, Total: %d", nick.Nick, x, y, final, total)
+		say(conn, channel, "%s rolls %dd%d: %s, Total: %d", nick.Nick, x, y, tmp, total)
 	}
 }

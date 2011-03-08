@@ -134,6 +134,8 @@ func roll(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	x := 1
 	y := 6
 
+	arg = strings.ToLower(arg)
+
 	split := strings.Split(arg, "d", 2)
 	if len(split) != 2 {
 		split = []string{"1", "6"}
@@ -143,9 +145,17 @@ func roll(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	if err != nil {
 		x = 1
 	}
-	if x > 100 { x = 100 }
+	if x > 100 {
+		x = 100
+	}
+	if x <= 0 {
+		x = 1
+	}
 	y, err = strconv.Atoi(split[1])
 	if err != nil {
+		y = 6
+	}
+	if y <= 0 {
 		y = 6
 	}
 
@@ -153,7 +163,7 @@ func roll(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	total := 0
 
 	for i := x; i > 0; i-- {
-		random := rand.Intn(y - 1) + 1
+		random := rand.Intn(y-1) + 1
 		total += random
 		results = append(results, strconv.Itoa(random))
 	}

@@ -143,6 +143,7 @@ func roll(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	if err != nil {
 		x = 1
 	}
+	if x > 100 { x = 100 }
 	y, err = strconv.Atoi(split[1])
 	if err != nil {
 		y = 6

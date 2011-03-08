@@ -5,6 +5,8 @@ import (
 	config "goconfig"
 	"http"
 	"strings"
+	"rand"
+	"strconv"
 )
 
 const apConfigFile = "ap.conf"
@@ -126,4 +128,46 @@ func apMyNick(conn *irc.Conn, nick *irc.Nick, _, channel string) {
 	}
 
 	say(conn, channel, "Your anime-planet.com username has been recorded as '%s'.", username)
+}
+
+func roll(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
+	x := 1
+	y := 6
+
+	split := strings.Split(arg, "d", 2)
+	if len(split) != 2 {
+		split = []string{"1", "6"}
+	}
+
+	x, err := strconv.Atoi(split[0])
+	if err != nil {
+		x = 1
+	}
+	y, err = strconv.Atoi(split[1])
+	if err != nil {
+		y = 6
+	}
+
+	results := []string{}
+
+	for i := x; i > 0; i-- {
+		random := rand.Intn(y - 1)
+		random++
+
+		results = append(results, strconv.Itoa(random))
+	}
+
+	final := strings.Join(results, ", ")
+	total := 0
+
+	for i := 0; i < len(results); i++ {
+		tmp, _ := strconv.Atoi(results[i])
+		total = total + tmp
+	}
+
+	if x > 10 {
+		say(conn, channel, "%s rolls %dd%d for a total of %d", nick.Nick, x, y, total)
+	} else {
+		say(conn, channel, "%s rolls %dd%d: %s, Total: %d", nick.Nick, x, y, final, total)
+	}
 }

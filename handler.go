@@ -163,7 +163,8 @@ func command(conn *irc.Conn, nick *irc.Nick, text, target string) {
 	if len(split[0]) < 2 {
 		return
 	}
-	handler := commands[split[0][1:]]
+	cmd := strings.ToLower(split[0])
+	handler := commands[cmd[1:]]
 	if handler != nil {
 		if len(split) > 1 {
 			handler(conn, nick, split[1], target)

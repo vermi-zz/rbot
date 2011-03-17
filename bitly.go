@@ -6,6 +6,7 @@ import (
 	"json"
 	"io/ioutil"
 	"xml"
+	"strings"
 )
 
 func shorten(long string) (short string) {
@@ -78,5 +79,12 @@ func expand(short string) (long string) {
 		return response.Data.Entry.Error
 	}
 
+	s := strings.TrimLeft(response.Data.Entry.Long_url, "http://")
+	s = strings.Split(s, "/", 2)[0]
+	if strings.Contains(s, "amazon.") {
+		return "amazon.com product"
+	} else if strings.Contains(s, "ebay.") {
+		return "ebay.com listing"
+	}
 	return response.Data.Entry.Long_url
 }

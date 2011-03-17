@@ -64,7 +64,11 @@ var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 	"mymanga": apMangaList,
 	"apnick":  apSetNick,
 	"mynick":  apMyNick,
+
+	// Miscellaneous
 	"roll": roll,
+	"8": eightBall,
+	"8ball": eightBall,
 
 	// help
 	"help": helpProcessRequest,

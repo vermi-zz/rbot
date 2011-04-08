@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"time"
+	"net"
+	"bufio"
 	"crypto/tls"
 	"crypto/rand"
 	"goconfig"
@@ -23,6 +25,11 @@ func main() {
 	trigger = readConfString("DEFAULT", "trigger")
 	readAuth()
 
+	identdport, _ := conf.String("DEFAULT", "identdport")
+	if identdport != "" && identdport != "0" {
+		go identd(identdport)
+	}
+
 	sections = conf.Sections()
 	for _, s := range sections {
 		if strings.Index(s, " ") == -1 && s != "DEFAULT" {
@@ -31,7 +38,7 @@ func main() {
 		}
 	}
 
-	<-make(chan bool)
+	select { }
 }
 
 func connect(network string) {
@@ -161,5 +168,36 @@ func BanManager(conn *irc.Conn) {
 				c.WriteFile("bans.list", 0644, "Ban List")
 			}
 		}
+
+}
+}
+func identd(port string) {
+	identd, err := net.Listen("tcp", "0.0.0.0:" + port)
+	if err != nil {
+		fmt.Println("Failed to start identd on port", port)
+		return
+}
+	defer identd.Close()
+	fmt.Println("Started identd on port", port)
+
+	for {
+		conn, err := identd.Accept()
+		if err != nil {
+			fmt.Println("Failed to accept identd connection")
+			continue
+		}
+
+		io := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
+		line, err := io.Reader.ReadString('\n')
+		if err != nil || len(line) < 2 {
+			conn.Close()
+			fmt.Println("Failed to read identd request")
+			continue
+		}
+		line = line[:len(line) - 2]
+		line = fmt.Sprintf("%s : ERROR : NO-USER\r\n", line)
+		io.Writer.WriteString(line)
+		time.Sleep(1000000000) // 1 second
+		conn.Close()
 	}
 }

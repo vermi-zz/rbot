@@ -38,7 +38,8 @@ func main() {
 		}
 	}
 
-	select { }
+	select {
+	}
 }
 
 func connect(network string) {
@@ -79,7 +80,7 @@ func connect(network string) {
 		fmt.Printf("Connecting to %s...\n", server)
 		if err := c.Connect(server); err != nil {
 			fmt.Printf("Connection error: %s\n", err)
-			if time.Seconds() - lastAttempt < 30 {
+			if time.Seconds()-lastAttempt < 30 {
 				time.Sleep(60000000000) // 1 minute
 			}
 		}
@@ -169,14 +170,14 @@ func BanManager(conn *irc.Conn) {
 			}
 		}
 
-}
+	}
 }
 func identd(port string) {
-	identd, err := net.Listen("tcp", "0.0.0.0:" + port)
+	identd, err := net.Listen("tcp", "0.0.0.0:"+port)
 	if err != nil {
 		fmt.Println("Failed to start identd on port", port)
 		return
-}
+	}
 	defer identd.Close()
 	fmt.Println("Started identd on port", port)
 
@@ -194,7 +195,7 @@ func identd(port string) {
 			fmt.Println("Failed to read identd request")
 			continue
 		}
-		line = line[:len(line) - 2]
+		line = line[:len(line)-2]
 		line = fmt.Sprintf("%s : ERROR : NO-USER\r\n", line)
 		io.Writer.WriteString(line)
 		time.Sleep(1000000000) // 1 second

@@ -55,7 +55,7 @@ func expand(short string) (long string) {
 	}
 
 	type Entry struct {
-		Error string
+		Error    string
 		Long_url string
 	}
 
@@ -65,7 +65,7 @@ func expand(short string) (long string) {
 
 	type Response struct {
 		XMLName xml.Name "response"
-		Data Data
+		Data    Data
 	}
 
 	var response Response

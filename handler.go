@@ -11,12 +11,12 @@ import (
 
 var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 	// access
-	"flags":  flags,
-	"add":    add,
-	"remove": remove,
-	"ignore": ignore,
+	"flags":    flags,
+	"add":      add,
+	"remove":   remove,
+	"ignore":   ignore,
 	"unignore": unignore,
-	"list": accesslist,
+	"list":     accesslist,
 
 	// admin
 	"nick":    nick,
@@ -66,8 +66,8 @@ var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 	"mynick":  apMyNick,
 
 	// Miscellaneous
-	"roll": roll,
-	"8": eightBall,
+	"roll":  roll,
+	"8":     eightBall,
 	"8ball": eightBall,
 
 	// help
@@ -239,7 +239,7 @@ func youtube(conn *irc.Conn, nick *irc.Nick, video, channel string) {
 	}
 }
 
-func bitlyExpand (conn *irc.Conn, nick *irc.Nick, short string, target string) {
+func bitlyExpand(conn *irc.Conn, nick *irc.Nick, short string, target string) {
 	long := expand(short)
 	if long == "NOT_FOUND" {
 		return

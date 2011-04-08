@@ -122,9 +122,9 @@ func roman(conn *irc.Conn, nick *irc.Nick, args, target string) {
 
 	source := result[1]
 	romanized := result[5]
-	if (sourcelang == "en" && !strings.Contains(args, " ") &&
+	if sourcelang == "en" && !strings.Contains(args, " ") &&
 		source[:len(source)/2] == source[len(source)/2:] &&
-		strings.ToLower(romanized[:len(romanized)/2]) == strings.ToLower(romanized[len(romanized)/2+1:])) {
+		strings.ToLower(romanized[:len(romanized)/2]) == strings.ToLower(romanized[len(romanized)/2+1:]) {
 		// Google duplicates when there is only one source word
 		say(conn, target, "%s: %s", source[:len(source)/2], romanized[:len(romanized)/2])
 	} else {
@@ -168,7 +168,8 @@ func calc(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	output := fmt.Sprintf(`"%s = %s"`, result[1], result[2])
 	output = parseCalc(output)
 	if output == "" {
-		say(conn, target, "%s: Error while decoding.", nick.Nick); return
+		say(conn, target, "%s: Error while decoding.", nick.Nick)
+		return
 	}
 	say(conn, target, output)
 }

@@ -24,7 +24,7 @@ func readAuth() {
 		ignores = make(map[string]map[string]bool)
 		// parse ignores
 		for _, s := range auth.Sections() {
-			if strings.Index(s ," ") > -1 {
+			if strings.Index(s, " ") > -1 {
 				// this is a channel
 				continue
 			}

@@ -128,7 +128,7 @@ func accesslist(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		say(conn, nick.Nick, "%s is the owner", owner)
 	}
 
-	for i, _ := range(ignores[conn.Network]) {
+	for i, _ := range ignores[conn.Network] {
 		if strings.Contains(i, args) {
 			say(conn, nick.Nick, "%s is being ignored", i)
 		}

@@ -431,7 +431,7 @@ func highlightOps(conn *irc.Conn, nick *irc.Nick, args, target string) {
 
 	var highlights string
 	for onick, privs := range c.Nicks {
-		if privs.Op && onick.Nick != nick.Nick {
+		if privs.Op && onick.Nick != conn.Me.Nick {
 			highlights += onick.Nick + ", "
 		}
 	}

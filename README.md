@@ -11,7 +11,8 @@ Assuming you have go set up (http://golang.org/),
 	git submodule update
 	gomake
 
-rbot.conf and auth.conf will be copied. Configure those and then run the bot:
+rbot.conf and auth.conf will be copied. Configure those. bans.list will also be touched; it requires no configuration, but the bot won't run without it.
+Afterwards, run the bot with the following command:
 
 	./rbot
 

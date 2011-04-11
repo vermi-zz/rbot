@@ -5,19 +5,25 @@
 include $(GOROOT)/src/Make.inc
 
 TARG=rbot
-GOFILES=rbot.go handler.go auth.go bitly.go cmd-access.go cmd-admin.go cmd-op.go cmd-google.go cmd-booru.go cmd-ap.go cmd-help.go misc.go
+GOFILES=rbot.go handler.go auth.go cmd-access.go cmd-admin.go cmd-op.go cmd-google.go
+pkgdir=$(QUOTED_GOROOT)/pkg/$(GOOS)_$(GOARCH)
+PREREQ=$(pkgdir)/github.com/fluffle/goirc/client.a $(pkgdir)/goconfig.a
 
-include $(GOROOT)/src/Make.cmd
+all: rbot.conf auth.conf
 
 .PHONY: client goconfig
 
-all: rbot.conf auth.conf client goconfig
+$(pkgdir)/github.com/fluffle/goirc/client.a: client
+	@true
+$(pkgdir)/goconfig.a: goconfig
+	@true
 
 client:
-	$(MAKE) -C client install
-
+	$(MAKE) -sC client install
 goconfig:
-	$(MAKE) -C goconfig install
+	$(MAKE) -sC goconfig install
+
+include $(GOROOT)/src/Make.cmd
 
 rbot.conf: rbot.conf.example
 	@if [ -f $@ ] ; then \
@@ -40,3 +46,15 @@ bans.list:
 		touch $@ ; \
 		echo "created $@" ; \
 	fi
+clean: clean-deps
+clean-deps:
+	$(MAKE) -C client clean
+	$(MAKE) -C goconfig clean
+
+nuke: nuke-deps
+nuke-deps:
+	$(MAKE) -C client nuke
+	$(MAKE) -C goconfig nuke
+
+uninstall:
+	@echo Perhaps you meant \"make nuke\"

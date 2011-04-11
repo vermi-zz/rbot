@@ -45,7 +45,7 @@ var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 	"bans":        banList,
 	"banlist":     banList,
 	"tb":          tempban,
-	"ops": highlightOps,
+	"ops":         highlightOps,
 
 	// google
 	"tr":    translate,
@@ -88,27 +88,29 @@ func handlePrivmsg(conn *irc.Conn, line *irc.Line) {
 	target := line.Args[0]
 	if isChannel(target) {
 		// message to a channel
-		var video string
-		if start := strings.Index(line.Args[1], "youtube.com/watch?v="); start > -1 {
-			video = line.Args[1][start+20:]
-		}
-		if start := strings.Index(line.Args[1], "youtu.be/"); start > -1 {
-			video = line.Args[1][start+9:]
-		}
-		if video != "" {
-			if end := strings.IndexAny(video, " &#"); end > -1 {
-				video = video[0:end]
+		if !command(conn, nick, line.Args[1], target) {
+			var video string
+			if start := strings.Index(line.Args[1], "youtube.com/watch?v="); start > -1 {
+				video = line.Args[1][start+20:]
 			}
-			youtube(conn, nick, video, target)
-		} else if bitly := strings.Index(line.Args[1], "bit.ly/"); bitly > -1 {
-			array := strings.Split(line.Args[1], " ", -1)
-			for i := 0; i < len(array); i++ {
-				if strings.Contains(array[i], "bit.ly/") {
-					bitlyExpand(conn, nick, array[i], target)
+			if start := strings.Index(line.Args[1], "youtu.be/"); start > -1 {
+				video = line.Args[1][start+9:]
+			}
+			if video != "" {
+				if end := strings.IndexAny(video, " &#"); end > -1 {
+					video = video[0:end]
 				}
+				youtube(conn, nick, video, target)
+			} else if bitly := strings.Index(line.Args[1], "bit.ly/"); bitly > -1 {
+				array := strings.Split(line.Args[1], " ", -1)
+				for i := 0; i < len(array); i++ {
+					if strings.Contains(array[i], "bit.ly/") {
+						bitlyExpand(conn, nick, array[i], target)
+					}
+				}
+			} else {
+				command(conn, nick, line.Args[1], target)
 			}
-		} else {
-			command(conn, nick, line.Args[1], target)
 		}
 	} else if target == conn.Me.Nick {
 		// message to us
@@ -166,13 +168,13 @@ func isChannel(target string) bool {
 	return target[0] == '#' || target[0] == '&'
 }
 
-func command(conn *irc.Conn, nick *irc.Nick, text, target string) {
+func command(conn *irc.Conn, nick *irc.Nick, text, target string) bool {
 	if !strings.HasPrefix(text, trigger) {
-		return
+		return false
 	}
 	split := strings.Split(text, " ", 2)
 	if len(split[0]) < 2 {
-		return
+		return false
 	}
 	cmd := strings.ToLower(split[0])
 	handler := commands[cmd[1:]]
@@ -182,7 +184,9 @@ func command(conn *irc.Conn, nick *irc.Nick, text, target string) {
 		} else {
 			handler(conn, nick, "", target)
 		}
+		return true
 	}
+	return false
 }
 
 func say(conn *irc.Conn, target, message string, a ...interface{}) {

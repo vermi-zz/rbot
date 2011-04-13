@@ -16,6 +16,8 @@ Afterwards, run the bot with the following command:
 
 	./rbot
 
+As a side note, cmd-ap.go is specific to #anime-planet.com on Rizon; it's not necessary for any normal functions of the bot, so you can remove it if you want. Just be sure to remove it from Makefile and handler.go as well.
+
 ### Flags
 
 Access is configured in auth.conf, is per-channel, based on ident and host; nick is ignored. The owner is configured per server and other access is configured per channel. Owners can use any commands. Ignores are checked before access.

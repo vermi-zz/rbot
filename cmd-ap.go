@@ -130,42 +130,35 @@ func apMyNick(conn *irc.Conn, nick *irc.Nick, _, channel string) {
 	say(conn, channel, "Your anime-planet.com username has been recorded as '%s'.", username)
 }
 
-func apStatsUID(nick string)(uid int){
-		url := "http://www.raylu.net/ap/user.php?nick=" + http.URLEscape(nick)
-
-	r, err := http.Head(url)
-
+func apStatsUID(nick string) int {
+	url := "http://www.raylu.net/ap/user.php?nick=" + http.URLEscape(nick)
+	r, _, err := http.Get(url)
+	defer r.Body.Close()
 	if err != nil {
 		return -1
 	}
 
-	if r.StatusCode == 200 {
-		r, _, _  = http.Get(url)
-		b, _ := ioutil.ReadAll(r.Body)
-		r.Body.Close()
-		i, _ := strconv.Atoi(string(b))
-		r.Body.Close()
-		return i
+	b, _ := ioutil.ReadAll(r.Body)
+	uid, err := strconv.Atoi(string(b))
+	if err != nil {
+		return -1;
 	}
-
-	r.Body.Close()
-	return -1
+	return uid
 }
-func apMyStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string){
+func apMyStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	apStats(conn, nick, nick.Nick, channel)
 }
-func apStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string){
+func apStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	arg = strings.TrimSpace(arg)
-	split := strings.Split(arg, " ", 2)
-	arg = split[0]
-
 	if arg == "" {
-		say(conn, channel, "Channel Stats: http://www.raylu.net/ap")
+		say(conn, channel, "Channel stats: https://www.raylu.net/ap")
 		return
 	}
-		
-		uid := apStatsUID(arg)
-		if uid > 0 {
-			say(conn, channel, "Stats for %s: http://www.raylu.net/ap/user.php?uid=%v", arg, uid)
-		} else { say(conn, channel, "Channel stats: http://www.raylu.net/ap") }
+
+	uid := apStatsUID(arg)
+	if uid >= 0 {
+		say(conn, channel, "Stats for %s: https://www.raylu.net/ap/user.php?uid=%d", arg, uid)
+	} else {
+		say(conn, channel, "Could not find stats for %s", arg)
+	}
 }

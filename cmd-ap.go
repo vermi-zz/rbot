@@ -131,7 +131,7 @@ func apMyNick(conn *irc.Conn, nick *irc.Nick, _, channel string) {
 }
 
 func apStatsUID(nick string)(uid int){
-		url := "https://www.raylu.net/ap/user.php?nick=" + http.URLEscape(nick)
+		url := "http://www.raylu.net/ap/user.php?nick=" + http.URLEscape(nick)
 
 	r, err := http.Head(url)
 
@@ -160,12 +160,12 @@ func apStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string){
 	arg = split[0]
 
 	if arg == "" {
-		say(conn, channel, "Channel Stats: https://www.raylu.net/ap")
+		say(conn, channel, "Channel Stats: http://www.raylu.net/ap")
 		return
 	}
 		
 		uid := apStatsUID(arg)
 		if uid > 0 {
-			say(conn, channel, "Stats for %s: https://www.raylu.net/ap/user.php?uid=%v", arg, uid)
-		} else { say(conn, channel, "Channel stats: https://www.raylu.net/ap") }
+			say(conn, channel, "Stats for %s: http://www.raylu.net/ap/user.php?uid=%v", arg, uid)
+		} else { say(conn, channel, "Channel stats: http://www.raylu.net/ap") }
 }

@@ -134,7 +134,7 @@ func apStatsUID(nick string) int {
 	url := "http://www.raylu.net/ap/user.php?nick=" + http.URLEscape(nick)
 	r, _, err := http.Get(url)
 	defer r.Body.Close()
-	if err != nil {
+	if err != nil || r.StatusCode != 200 {
 		return -1
 	}
 

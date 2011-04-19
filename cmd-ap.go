@@ -134,7 +134,6 @@ func apStatsUID(nick string)(uid int){
 		url := "https://www.raylu.net/ap/user.php?nick=" + http.URLEscape(nick)
 
 	r, err := http.Head(url)
-	defer r.Body.Close()
 
 	if err != nil {
 		return -1
@@ -145,9 +144,11 @@ func apStatsUID(nick string)(uid int){
 		b, _ := ioutil.ReadAll(r.Body)
 		r.Body.Close()
 		i, _ := strconv.Atoi(string(b))
+		r.Body.Close()
 		return i
 	}
 
+	r.Body.Close()
 	return -1
 }
 func apMyStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string){

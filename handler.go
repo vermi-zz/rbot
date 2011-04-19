@@ -61,12 +61,18 @@ var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 
 	// anime-planet.com
 	"profile": apProfile,
+	"pr": apProfile,
 	"myanime": apAnimeList,
+	"mya": apAnimeList,
 	"mymanga": apMangaList,
+	"mym": apMangaList,
 	"apnick":  apSetNick,
 	"mynick":  apMyNick,
+	"myn": apMyNick,
 	"stats": apStats,
+	"st": apStats,
 	"mystats": apMyStats,
+	"mys": apMyStats,
 
 	// Miscellaneous
 	"roll":  roll,

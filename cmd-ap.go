@@ -40,22 +40,29 @@ func apReadConfig(nick *irc.Nick) (apnick string) {
 }
 
 func apProfile(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
-	username := strings.TrimSpace(arg)
+	var query_nick *irc.Nick
+	if arg == "" {
+		query_nick = nick
+	} else {
+		arg = strings.TrimSpace(arg)
+		query_nick = conn.GetNick(arg)
+		if query_nick == nil {
+			say(conn, channel, "Could not find nick %s", arg)
+			return
+		}
+	}
 
+	username := apReadConfig(query_nick)
 	if username == "" {
-		username = apReadConfig(nick)
+		username = query_nick.Nick
+		if apUserExists(username) {
+			say(conn, channel, "%s's profile: http://www.anime-planet.com/users/%s", username, username)
+		} else {
+			say(conn, channel, "The user '%s' doesn't exist. Try again.", username)
+		}
+	} else {
+		say(conn, channel, "%s's profile: http://www.anime-planet.com/users/%s", query_nick.Nick, username)
 	}
-
-	if username == "" {
-		username = nick.Nick
-	}
-
-	if apUserExists(username) {
-		say(conn, channel, "%s's profile: http://www.anime-planet.com/users/%s", username, username)
-		return
-	}
-
-	say(conn, channel, "The user '%s' doesn't exist. Try again.", username)
 }
 
 func apAnimeList(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {

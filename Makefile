@@ -9,7 +9,7 @@ GOFILES=rbot.go handler.go auth.go cmd-access.go cmd-admin.go cmd-op.go cmd-goog
 pkgdir=$(QUOTED_GOROOT)/pkg/$(GOOS)_$(GOARCH)
 PREREQ=$(pkgdir)/github.com/fluffle/goirc/client.a $(pkgdir)/goconfig.a
 
-all: rbot.conf auth.conf
+all: rbot.conf auth.conf bans.list ap.conf
 
 .PHONY: client goconfig
 
@@ -46,6 +46,13 @@ bans.list:
 		touch $@ ; \
 		echo "created $@" ; \
 	fi
+
+ap.conf:
+	@if [ ! -f $@ ] ; then \
+		touch $@ ; \
+		echo "created $@" ; \
+	fi
+
 clean: clean-deps
 clean-deps:
 	$(MAKE) -C client clean

@@ -5,8 +5,6 @@ import (
 	config "goconfig"
 	"http"
 	"strings"
-	"io/ioutil"
-	"strconv"
 )
 
 const apConfigFile = "ap.conf"
@@ -137,35 +135,14 @@ func apMyNick(conn *irc.Conn, nick *irc.Nick, _, channel string) {
 	say(conn, channel, "Your anime-planet.com username has been recorded as '%s'.", username)
 }
 
-func apStatsUID(nick string) int {
-	url := "http://www.raylu.net/ap/user.php?nick=" + http.URLEscape(nick)
-	r, _, err := http.Get(url)
-	defer r.Body.Close()
-	if err != nil || r.StatusCode != 200 {
-		return -1
-	}
-
-	b, _ := ioutil.ReadAll(r.Body)
-	uid, err := strconv.Atoi(string(b))
-	if err != nil {
-		return -1;
-	}
-	return uid
-}
 func apMyStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	apStats(conn, nick, nick.Nick, channel)
 }
 func apStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	arg = strings.TrimSpace(arg)
 	if arg == "" {
-		say(conn, channel, "Channel stats: https://www.raylu.net/ap")
-		return
-	}
-
-	uid := apStatsUID(arg)
-	if uid >= 0 {
-		say(conn, channel, "Stats for %s: https://www.raylu.net/ap/user.php?uid=%d", arg, uid)
+		say(conn, channel, "Channel stats: http://www.raylu.net/irc/ap.html")
 	} else {
-		say(conn, channel, "Could not find stats for %s", arg)
+		say(conn, channel, "Stats for %s: http://www.raylu.net/irc/user.php?c=ap&n=%s", arg, arg)
 	}
 }

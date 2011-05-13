@@ -143,6 +143,6 @@ func apStats(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	if arg == "" {
 		say(conn, channel, "Channel stats: http://www.raylu.net/irc/ap.html")
 	} else {
-		say(conn, channel, "Stats for %s: http://www.raylu.net/irc/user.php?c=ap&n=%s", arg, arg)
+		say(conn, channel, "Stats for %s: http://www.raylu.net/irc/user.php?cid=ap&nick=%s", arg, arg)
 	}
 }

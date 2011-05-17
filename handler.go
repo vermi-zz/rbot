@@ -63,18 +63,18 @@ var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 
 	// anime-planet.com
 	"profile": apProfile,
-	"pr": apProfile,
+	"pr":      apProfile,
 	"myanime": apAnimeList,
-	"mya": apAnimeList,
+	"mya":     apAnimeList,
 	"mymanga": apMangaList,
-	"mym": apMangaList,
+	"mym":     apMangaList,
 	"apnick":  apSetNick,
 	"mynick":  apMyNick,
-	"myn": apMyNick,
-	"stats": apStats,
-	"st": apStats,
+	"myn":     apMyNick,
+	"stats":   apStats,
+	"st":      apStats,
 	"mystats": apMyStats,
-	"mys": apMyStats,
+	"mys":     apMyStats,
 
 	// Miscellaneous
 	"roll":  roll,
@@ -100,10 +100,10 @@ func handlePrivmsg(conn *irc.Conn, line *irc.Line) {
 			fmt.Println("Recovered from", r)
 			callers := make([]uintptr, 10)
 			runtime.Callers(4, callers)
-			cutoff := runtime.FuncForPC(reflect.NewValue(handlePrivmsg).(*reflect.FuncValue).Get()).Entry()
+			cutoff := runtime.FuncForPC(reflect.ValueOf(handlePrivmsg).Pointer()).Entry()
 			for _, pc := range callers {
 				function := runtime.FuncForPC(pc - 1)
-				if function.Entry() == cutoff{
+				if function.Entry() == cutoff {
 					break
 				}
 				file, line := function.FileLine(pc - 1)

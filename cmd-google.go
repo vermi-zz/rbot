@@ -129,16 +129,16 @@ func roman(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		return
 	}
 
-	if (sourcelang == "en" && !strings.Contains(args, " ")) {
+	if sourcelang == "en" && !strings.Contains(args, " ") {
 		// Google duplicates when there is only one source word
 		source := utf8.NewString(result[1])
 		romanized := utf8.NewString(result[5])
 		source_left := source.Slice(0, source.RuneCount()/2)
 		source_right := source.Slice(source.RuneCount()/2, source.RuneCount())
 		romanized_left := romanized.Slice(0, romanized.RuneCount()/2)
-		romanized_right :=romanized.Slice(romanized.RuneCount()/2, romanized.RuneCount())
-		if (source_left == source_right &&
-			strings.ToLower(romanized_left) == strings.ToLower(romanized_right)) {
+		romanized_right := romanized.Slice(romanized.RuneCount()/2, romanized.RuneCount())
+		if source_left == source_right &&
+			strings.ToLower(romanized_left) == strings.ToLower(romanized_right) {
 			say(conn, target, "%s: %s", source_left, romanized_left)
 			return
 		}
@@ -210,7 +210,7 @@ func send(url string) ([]byte, os.Error) {
 	}
 	request.UserAgent = "Mozilla/5.0"
 
-	httpcon, err := net.Dial("tcp", "", request.URL.Host+":"+request.URL.Scheme)
+	httpcon, err := net.Dial("tcp", request.URL.Host+":"+request.URL.Scheme)
 	if err != nil {
 		return nil, err
 	}

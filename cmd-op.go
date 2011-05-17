@@ -435,5 +435,5 @@ func highlightOps(conn *irc.Conn, nick *irc.Nick, args, target string) {
 			highlights += onick.Nick + ", "
 		}
 	}
-	say(conn, channel, highlights[:len(highlights)-2] + "!")
+	say(conn, channel, highlights[:len(highlights)-2]+"!")
 }

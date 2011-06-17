@@ -16,7 +16,7 @@ func shorten(long string) (short string) {
 	long = http.URLEscape(long)
 
 	url := fmt.Sprintf("http://api.bit.ly/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=json", login, key, long)
-	r, _, err := http.Get(url)
+	r, err := http.Get(url)
 	defer r.Body.Close()
 
 	if err != nil {
@@ -47,7 +47,7 @@ func expand(short string) (long string) {
 	short = http.URLEscape(short)
 
 	url := fmt.Sprintf("http://api.bit.ly/v3/expand?login=%s&apiKey=%s&shortUrl=%s&format=xml", login, key, short)
-	r, _, err := http.Get(url)
+	r, err := http.Get(url)
 	defer r.Body.Close()
 
 	if err != nil {

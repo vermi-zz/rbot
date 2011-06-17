@@ -8,7 +8,7 @@ import (
 )
 
 func booruDoSearch(conn *irc.Conn, channel string, site string) (status string) {
-	stuff, _, err := http.Get(site)
+	stuff, err := http.Get(site)
 	if err != nil {
 		return "DOWN"
 	}

@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-const binName = "rbot"
-
 func nick(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if len(args) == 0 {
 		return
@@ -29,17 +27,14 @@ func csay(conn *irc.Conn, nick *irc.Nick, args, target string) {
 func restart(conn *irc.Conn, nick *irc.Nick, args, channel string) {
 	owner, _ := auth.String(conn.Network, "owner")
 	if owner == user(nick) {
+		cmd := exec.Command("./rbot")
 		here, _ := os.Getwd()
-		binary, err := exec.LookPath("./" + binName)
+		cmd.Dir = here
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err := cmd.Start()
 		if err != nil {
-			say(conn, channel, "Could not find binary.")
-			return
-		}
-		argv := []string{""}
-		envv := []string{""}
-		_, err = exec.Run(binary, argv, envv, here, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
-		if err != nil {
-			say(conn, channel, "Unable to start new process.")
+			say(conn, channel, "Unable to start new process: %s", err)
 			return
 		}
 		conn.Quit("Restarting.")

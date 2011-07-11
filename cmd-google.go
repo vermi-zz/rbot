@@ -52,7 +52,7 @@ func translate(conn *irc.Conn, nick *irc.Nick, args, target string) {
 			http.URLEscape(args), googleAPIKey)
 	}
 
-	response, _, err := http.Get(url)
+	response, err := http.Get(url)
 	defer response.Body.Close()
 	if err != nil {
 		say(conn, target, "%s: Error while requesting translation", nick.Nick)
@@ -202,13 +202,11 @@ func parseCalc(output string) string {
 // please disregard the reproduction of src/pkg/http/client.go:send below
 // it's definitely not to send a User-Agent for undocumented Google APIs
 func send(url string) ([]byte, os.Error) {
-	var request http.Request
-	var err os.Error
-	request.URL, err = http.ParseURL(url)
+	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	request.UserAgent = "Mozilla/5.0"
+	request.Header.Add("User-Agent", "Mozilla/5.0")
 
 	httpcon, err := net.Dial("tcp", request.URL.Host+":"+request.URL.Scheme)
 	if err != nil {
@@ -220,7 +218,7 @@ func send(url string) ([]byte, os.Error) {
 		return nil, err
 	}
 	reader := bufio.NewReader(httpcon)
-	response, err := http.ReadResponse(reader, request.Method)
+	response, err := http.ReadResponse(reader, request)
 	if err != nil {
 		return nil, err
 	}

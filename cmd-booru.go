@@ -8,7 +8,7 @@ import (
 )
 
 func booruDoSearch(conn *irc.Conn, channel string, site string) (status string) {
-	stuff, _, err := http.Get(site)
+	stuff, err := http.Get(site)
 	if err != nil {
 		return "DOWN"
 	}
@@ -62,7 +62,7 @@ func booruSearch(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	}
 
 	tag = http.URLEscape(tag)
-	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
+	site := fmt.Sprintf("http://ibsearch.i-forge.net/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
 	status := "FAIL"
 	for fail := 0; fail < 10 && status == "FAIL"; fail++ {
@@ -80,7 +80,7 @@ func booruSearch(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 func booruFuta(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	tag = "futa futanari -futaba*"
 	tag = http.URLEscape(tag)
-	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
+	site := fmt.Sprintf("http://ibsearch.i-forge.net/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
 	status := booruDoSearch(conn, channel, site)
 
@@ -95,7 +95,7 @@ func booruFuta(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 func booruLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	tag = "loli*"
 	tag = http.URLEscape(tag)
-	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
+	site := fmt.Sprintf("http://ibsearch.i-forge.net/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
 	status := booruDoSearch(conn, channel, site)
 
@@ -110,7 +110,7 @@ func booruLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 func booruSafeLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	tag = "+loli* rating:s"
 	tag = http.URLEscape(tag)
-	site := fmt.Sprintf("http://www.i-forge.net/imageboards/?action=randimage&randimage[phrase]=%s&format=xml", tag)
+	site := fmt.Sprintf("http://ibsearch.i-forge.net/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
 	status := booruDoSearch(conn, channel, site)
 

@@ -206,7 +206,7 @@ func getUserAgent(urlstr string) ([]byte, os.Error) {
 		return nil, err
 	}
 
-	conn, err := net.Dial("tcp", url.Host + ":http")
+	conn, err := net.Dial("tcp", url.Host+":http")
 	if err != nil {
 		return nil, err
 	}

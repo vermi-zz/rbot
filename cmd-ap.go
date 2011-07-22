@@ -43,14 +43,16 @@ func apProfile(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 	if username == "" {
 		username = apReadConfig(nick)
 	}
-	
-	if username == "" { username = nick.Nick }
+
+	if username == "" {
+		username = nick.Nick
+	}
 
 	if apUserExists(username) {
 		say(conn, channel, "%s's profile: http://www.anime-planet.com/users/%s", username, username)
 		return
 	}
-	
+
 	say(conn, channel, "The user %s doesn't exist. Try again.", username)
 }
 

@@ -96,6 +96,9 @@ func autojoin(conn *irc.Conn) {
 				conn.Join(split[1])
 			}
 
+			if annstream, _ := conf.Bool(s, "stream"); annstream {
+				announceJustinTv(conn, split[1])
+			}
 		}
 	}
 	go BanManager(conn)

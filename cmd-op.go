@@ -117,7 +117,7 @@ func kick(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		return
 	}
 
-	split := strings.Split(args, " ", 2)
+	split := strings.SplitN(args, " ", 2)
 	if n := conn.GetNick(split[0]); n == nil || (split[0] != nick.Nick &&
 		(!hasAccess(conn, nick, channel, "o") && hasAccess(conn, n, channel, "oh"))) {
 		// if we only have h, we can't kick people with o or h
@@ -355,7 +355,7 @@ func kickban(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		return
 	}
 
-	split := strings.Split(args, " ", 2)
+	split := strings.SplitN(args, " ", 2)
 
 	n := conn.GetNick(split[0])
 	if n == nil || (split[0] != nick.Nick &&

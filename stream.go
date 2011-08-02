@@ -34,7 +34,7 @@ func pollJustinTv() []string {
 			if err != nil {
 				break
 			}
-			username := strings.Split(line, "\t", 2)[1]
+			username := strings.SplitN(line, "\t", 2)[1]
 			if len(username) > 3 && username[:3] == "/j/" {
 				username = username[3 : len(username)-1]
 				newStreams[username] = false

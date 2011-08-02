@@ -122,7 +122,7 @@ func roman(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		return
 	}
 
-	result := strings.Split(string(b), `"`, 7)
+	result := strings.SplitN(string(b), `"`, 7)
 	if len(result) < 7 {
 		say(conn, target, "%s: Error while parsing romanization", nick.Nick)
 		return
@@ -215,7 +215,7 @@ func getUserAgent(urlstr string) ([]byte, os.Error) {
 	if err != nil {
 		return nil, err
 	}
-	req.UserAgent = "Mozilla/5.0"
+	req.Header.Set("User-Agent", "Mozilla/5.0")
 
 	httpconn := http.NewClientConn(conn, nil)
 	response, err := httpconn.Do(req)

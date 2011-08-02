@@ -38,8 +38,7 @@ func main() {
 		}
 	}
 
-	select {
-	}
+	select {}
 }
 
 func connect(network string) {
@@ -152,7 +151,7 @@ func BanManager(conn *irc.Conn) {
 			banlist[i], _ = c.String("timed", squid)
 		}
 		for e := count; e > 0; e-- {
-			split := strings.Split(banlist[e-1], " ", 3)
+			split := strings.SplitN(banlist[e-1], " ", 3)
 			expiry, _ := strconv.Atoi64(split[2])
 			if expiry <= time.Seconds() {
 				c, _ = config.ReadDefault("bans.list")

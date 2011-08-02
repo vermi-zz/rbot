@@ -80,7 +80,7 @@ func expand(short string) (long string) {
 	}
 
 	s := strings.TrimLeft(response.Data.Entry.Long_url, "http://")
-	s = strings.Split(s, "/", 2)[0]
+	s = strings.SplitN(s, "/", 2)[0]
 	if strings.Contains(s, "amazon.") {
 		return "amazon.com product"
 	} else if strings.Contains(s, "ebay.") {

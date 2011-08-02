@@ -13,7 +13,7 @@ func roll(conn *irc.Conn, nick *irc.Nick, arg string, channel string) {
 
 	arg = strings.ToLower(arg)
 
-	split := strings.Split(arg, "d", 2)
+	split := strings.SplitN(arg, "d", 2)
 	if len(split) != 2 {
 		split = []string{"1", "6"}
 	}

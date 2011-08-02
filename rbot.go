@@ -85,7 +85,7 @@ func connect(network string) {
 
 func autojoin(conn *irc.Conn) {
 	for _, s := range sections {
-		split := strings.Split(s, " ", 2)
+		split := strings.SplitN(s, " ", 2)
 		if len(split) == 2 && split[0] == conn.Network {
 			// found a channel
 			if readConfBool(s, "autojoin") {

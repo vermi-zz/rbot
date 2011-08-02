@@ -156,7 +156,7 @@ func command(conn *irc.Conn, nick *irc.Nick, text, target string) bool {
 	if !strings.HasPrefix(text, trigger) {
 		return false
 	}
-	split := strings.Split(text, " ", 2)
+	split := strings.SplitN(text, " ", 2)
 	if len(split[0]) < 2 {
 		return false
 	}
@@ -247,7 +247,7 @@ func parseChannel(target, args string) (string, string) {
 	if isChannel(target) {
 		channel = target
 	} else {
-		split := strings.Split(args, " ", 2)
+		split := strings.SplitN(args, " ", 2)
 		if split[0] != "" && isChannel(split[0]) {
 			channel = split[0]
 			if len(split) == 2 {

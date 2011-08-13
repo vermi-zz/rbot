@@ -187,10 +187,10 @@ func say(conn *irc.Conn, target, message string, a ...interface{}) {
 func youtube(conn *irc.Conn, nick *irc.Nick, video, channel string) {
 	url := fmt.Sprintf("http://gdata.youtube.com/feeds/api/videos/%s?v=2", video)
 	response, err := http.Get(url)
-	defer response.Body.Close()
 	if err != nil {
 		return
 	}
+	defer response.Body.Close()
 
 	type duration struct {
 		Seconds string "attr"

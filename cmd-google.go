@@ -52,11 +52,11 @@ func translate(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	}
 
 	response, err := http.Get(url)
-	defer response.Body.Close()
 	if err != nil {
 		say(conn, target, "%s: Error while requesting translation", nick.Nick)
 		return
 	}
+	defer response.Body.Close()
 	b, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		say(conn, target, "%s: Error while downloading translation", nick.Nick)

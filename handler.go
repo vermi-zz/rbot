@@ -193,23 +193,20 @@ func youtube(conn *irc.Conn, nick *irc.Nick, video, channel string) {
 	defer response.Body.Close()
 
 	type duration struct {
-		Seconds string "attr"
-	}
-	type group struct {
-		Duration duration
+		Seconds string `xml:"attr"`
 	}
 	type entry struct {
 		Title string
-		Group group
+		Duration duration `xml:"group>duration"`
 	}
-	var yte = entry{"", group{duration{""}}}
+	var yte = entry{"", duration{""}}
 
 	err = xml.Unmarshal(response.Body, &yte)
 	if err != nil {
 		return
 	}
 
-	seconds, err := strconv.Atoui(yte.Group.Duration.Seconds)
+	seconds, err := strconv.Atoui(yte.Duration.Seconds)
 	if err == nil {
 		minutes := seconds / 60
 		seconds = seconds % 60

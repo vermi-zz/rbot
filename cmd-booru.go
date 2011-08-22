@@ -14,8 +14,8 @@ func booruDoSearch(conn *irc.Conn, channel string, site string) (status string) 
 	}
 
 	type SecondResponse struct {
-		File_url string "attr"
-		Rating   string "attr"
+		File_url string `xml:"attr"`
+		Rating   string `xml:"attr"`
 	}
 
 	type FirstResponse struct {

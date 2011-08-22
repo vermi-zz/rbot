@@ -54,19 +54,21 @@ func expand(short string) (long string) {
 		return "Unable to connect to bit.ly"
 	}
 
-	type Entry struct {
+	type (
+	Entry struct {
 		Error    string
 		Long_url string
 	}
 
-	type Data struct {
+	Data struct {
 		Entry Entry
 	}
 
-	type Response struct {
-		XMLName xml.Name "response"
+	Response struct {
+		XMLName xml.Name `xml:"response"`
 		Data    Data
 	}
+	)
 
 	var response Response
 

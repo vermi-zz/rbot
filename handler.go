@@ -234,7 +234,7 @@ func youtube(conn *irc.Conn, nick *irc.Nick, video, channel string) {
 		Seconds string `xml:"attr"`
 	}
 	type entry struct {
-		Title string
+		Title    string
 		Duration duration `xml:"group>duration"`
 	}
 	var yte = entry{"", duration{""}}

@@ -55,19 +55,19 @@ func expand(short string) (long string) {
 	}
 
 	type (
-	Entry struct {
-		Error    string
-		Long_url string
-	}
+		Entry struct {
+			Error    string
+			Long_url string
+		}
 
-	Data struct {
-		Entry Entry
-	}
+		Data struct {
+			Entry Entry
+		}
 
-	Response struct {
-		XMLName xml.Name `xml:"response"`
-		Data    Data
-	}
+		Response struct {
+			XMLName xml.Name `xml:"response"`
+			Data    Data
+		}
 	)
 
 	var response Response

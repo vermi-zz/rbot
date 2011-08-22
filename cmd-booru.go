@@ -36,11 +36,11 @@ func booruDoSearch(conn *irc.Conn, channel string, site string) (status string) 
 	rating := ""
 	switch {
 	case url.Response.Response.Rating == "s":
-		rating = "[Rating: Safe] "
+		rating = "[Supposedly Safe] "
 	case url.Response.Response.Rating == "q":
-		rating = "[Rating: Questionable] "
+		rating = "[Questionable] "
 	case url.Response.Response.Rating == "e":
-		rating = "[Rating: Explicit] "
+		rating = "[Explicit] "
 	case url.Response.Response.Rating == "0":
 		rating = "[Not Rated] "
 	}

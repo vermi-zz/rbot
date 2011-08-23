@@ -16,6 +16,10 @@ Afterwards, run the bot with the following command:
 
 	./rbot
 
+If you're going to be running the bot for extended periods of time, we recommended using the `nohup` command.
+	nohup ./rbot &
+This will keep the bot from stopping if you log off.
+
 As a side note, cmd-ap.go is specific to #anime-planet.com on Rizon; it's not necessary for any normal functions of the bot, so you can remove it if you want. Just be sure to remove it from Makefile and handler.go as well.
 
 ### Flags

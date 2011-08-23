@@ -20,7 +20,7 @@ If you're going to be running the bot for extended periods of time, we recommend
 
 	nohup ./rbot &
 	
-This will keep the bot from stopping if you log off.
+This will keep the bot from stopping if you log off. By default, all output will be logged to ./nohup.out
 
 As a side note, cmd-ap.go is specific to #anime-planet.com on Rizon; it's not necessary for any normal functions of the bot, so you can remove it if you want. Just be sure to remove it from Makefile and handler.go as well.
 

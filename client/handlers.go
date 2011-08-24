@@ -3,14 +3,15 @@ package client
 // this file contains the basic set of event handlers
 // to manage tracking an irc connection etc.
 
-import "strings"
+import (
+	"github.com/fluffle/goirc/event"
+	"strings"
+)
+
+// An IRC handler looks like this:
+type IRCHandler func(*Conn, *Line)
 
 // AddHandler() adds an event handler for a specific IRC command.
-//
-// Handlers take the form of an anonymous function (currently):
-//	func(conn *irc.Conn, line *irc.Line) {
-//		// handler code here
-//	}
 //
 // Handlers are triggered on incoming Lines from the server, with the handler
 // "name" being equivalent to Line.Cmd. Read the RFCs for details on what
@@ -18,54 +19,15 @@ import "strings"
 // "PRIVMSG", "JOIN", etc. but all the numeric replies are left as ascii
 // strings of digits like "332" (mainly because I really didn't feel like
 // putting massive constant tables in).
-func (conn *Conn) AddHandler(name string, f func(*Conn, *Line)) {
-	n := strings.ToUpper(name)
-	if e, ok := conn.events[n]; ok {
-		conn.events[n] = append(e, f)
-	} else {
-		e := make([]func(*Conn, *Line), 1, 10)
-		e[0] = f
-		conn.events[n] = e
-	}
+func (conn *Conn) AddHandler(name string, f IRCHandler) {
+	conn.Registry.AddHandler(name, NewHandler(f))
 }
 
-// loops through all event handlers for line.Cmd, running each in a goroutine
-func (conn *Conn) dispatchEvent(line *Line) {
-	// seems that we end up dispatching an event with a nil line when receiving
-	// EOF from the server. Until i've tracked down why....
-	if line == nil {
-		conn.error("irc.dispatchEvent(): buh? line == nil :-(")
-		return
-	}
-
-	// So, I think CTCP and (in particular) CTCP ACTION are better handled as
-	// separate events as opposed to forcing people to have gargantuan PRIVMSG
-	// handlers to cope with the possibilities.
-	if line.Cmd == "PRIVMSG" &&
-		len(line.Args[1]) > 2 &&
-		line.Args[1][0] == '\001' &&
-		line.Args[1][len(line.Args[1])-1] == '\001' {
-		// WOO, it's a CTCP message
-		t := strings.SplitN(line.Args[1][1:len(line.Args[1])-1], " ", 2)
-		if len(t) > 1 {
-			// Replace the line with the unwrapped CTCP
-			line.Args[1] = t[1]
-		}
-		if c := strings.ToUpper(t[0]); c == "ACTION" {
-			// make a CTCP ACTION it's own event a-la PRIVMSG
-			line.Cmd = c
-		} else {
-			// otherwise, dispatch a generic CTCP event that
-			// contains the type of CTCP in line.Args[0]
-			line.Cmd = "CTCP"
-			line.Args = append([]string{c}, line.Args...)
-		}
-	}
-	if funcs, ok := conn.events[line.Cmd]; ok {
-		for _, f := range funcs {
-			go f(conn, line)
-		}
-	}
+// Wrap f in an anonymous unboxing function
+func NewHandler(f IRCHandler) event.Handler {
+	return event.NewHandler(func(ev ...interface{}) {
+		f(ev[0].(*Conn), ev[1].(*Line))
+	})
 }
 
 // Basic ping/pong handler
@@ -76,7 +38,7 @@ func (conn *Conn) h_PING(line *Line) {
 // Handler to trigger a "CONNECTED" event on receipt of numeric 001
 func (conn *Conn) h_001(line *Line) {
 	// we're connected!
-	conn.dispatchEvent(&Line{Cmd: "CONNECTED"})
+	conn.Dispatcher.Dispatch("connected", conn, line)
 	// and we're being given our hostname (from the server's perspective)
 	t := line.Args[len(line.Args)-1]
 	if idx := strings.LastIndex(t, " "); idx != -1 {
@@ -197,7 +159,7 @@ func (conn *Conn) h_QUIT(line *Line) {
 func (conn *Conn) h_MODE(line *Line) {
 	// channel modes first
 	if ch := conn.GetChannel(line.Args[0]); ch != nil {
-		conn.ParseChannelModes(ch, line.Args[1], line.Args[2:len(line.Args)])
+		conn.ParseChannelModes(ch, line.Args[1], line.Args[2:])
 	} else if n := conn.GetNick(line.Args[0]); n != nil {
 		// nick mode change, should be us
 		if n != conn.Me {
@@ -232,9 +194,8 @@ func (conn *Conn) h_311(line *Line) {
 
 // Handle 324 mode reply
 func (conn *Conn) h_324(line *Line) {
-	// XXX: copypasta from MODE, needs tidying.
 	if ch := conn.GetChannel(line.Args[1]); ch != nil {
-		conn.ParseChannelModes(ch, line.Args[2], line.Args[3:len(line.Args)])
+		conn.ParseChannelModes(ch, line.Args[2], line.Args[3:])
 	} else {
 		conn.error("irc.324(): buh? received MODE settings for unknown channel %s", line.Args[1])
 	}
@@ -281,7 +242,7 @@ func (conn *Conn) h_353(line *Line) {
 			}
 			switch c := nick[0]; c {
 			case '~', '&', '@', '%', '+':
-				nick = nick[1:len(nick)]
+				nick = nick[1:]
 				fallthrough
 			default:
 				n := conn.GetNick(nick)
@@ -324,9 +285,7 @@ func (conn *Conn) h_671(line *Line) {
 }
 
 // sets up the internal event handlers to do useful things with lines
-func (conn *Conn) setupEvents() {
-	conn.events = make(map[string][]func(*Conn, *Line))
-
+func (conn *Conn) SetupHandlers() {
 	conn.AddHandler("CTCP", (*Conn).h_CTCP)
 	conn.AddHandler("JOIN", (*Conn).h_JOIN)
 	conn.AddHandler("KICK", (*Conn).h_KICK)

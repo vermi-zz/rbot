@@ -2,10 +2,11 @@ package client
 
 import (
 	"bufio"
-	"os"
-	"net"
 	"crypto/tls"
+	"github.com/fluffle/goirc/event"
 	"fmt"
+	"net"
+	"os"
 	"strings"
 	"time"
 )
@@ -14,27 +15,33 @@ const (
 	second = int64(1e9)
 )
 
-// An IRC connection is represented by this struct. Once connected, any errors
-// encountered are piped down *Conn.Err; this channel is closed on disconnect.
+// An IRC connection is represented by this struct.
+// Once connected, any errors encountered are piped down *Conn.Err.
 type Conn struct {
 	// Connection Hostname and Nickname
 	Host    string
 	Me      *Nick
 	Network string
 
-	// Event handler mapping
-	events map[string][]func(*Conn, *Line)
+	// Event handler registry and dispatcher
+	Registry event.EventRegistry
+	Dispatcher event.EventDispatcher
+
 	// Map of channels we're on
 	chans map[string]*Channel
 	// Map of nicks we know about
 	nicks map[string]*Nick
+
+	// Use the State field to store external state that handlers might need.
+	// Remember ... you might need locking for this ;-)
+	State interface{}
 
 	// I/O stuff to server
 	sock      net.Conn
 	io        *bufio.ReadWriter
 	in        chan *Line
 	out       chan string
-	connected bool
+	Connected bool
 
 	// Control channels to goroutines
 	cSend, cLoop chan bool
@@ -67,7 +74,10 @@ type Conn struct {
 // Creates a new IRC connection object, but doesn't connect to anything so
 // that you can add event handlers to it. See AddHandler() for details.
 func New(nick, user, name string) *Conn {
+	reg := event.NewRegistry()
 	conn := &Conn{
+		Registry: reg,
+		Dispatcher: reg,
 		in: make(chan *Line, 32),
 		out: make(chan string, 32),
 		Err: make(chan os.Error, 4),
@@ -83,7 +93,7 @@ func New(nick, user, name string) *Conn {
 		TSFormat: "15:04:05",
 	}
 	conn.initialise()
-	conn.setupEvents()
+	conn.SetupHandlers()
 	conn.Me = conn.NewNick(nick, user, name, "")
 	return conn
 }
@@ -108,7 +118,7 @@ func (conn *Conn) initialise() {
 // Connect(). The port will default to 6697 if ssl is enabled, and 6667
 // otherwise. You can also provide an optional connect password.
 func (conn *Conn) Connect(host string, pass ...string) os.Error {
-	if conn.connected {
+	if conn.Connected {
 		return os.NewError(fmt.Sprintf(
 			"irc.Connect(): already connected to %s, cannot connect to %s",
 			conn.Host, host))
@@ -133,24 +143,27 @@ func (conn *Conn) Connect(host string, pass ...string) os.Error {
 			return err
 		}
 	}
-
 	conn.Host = host
-	conn.io = bufio.NewReadWriter(
-		bufio.NewReader(conn.sock),
-		bufio.NewWriter(conn.sock))
-	conn.sock.SetTimeout(conn.Timeout * second)
-	conn.connected = true
-	go conn.send()
-	go conn.recv()
+	conn.Connected = true
+	conn.postConnect()
 
 	if len(pass) > 0 {
 		conn.Pass(pass[0])
 	}
 	conn.Nick(conn.Me.Nick)
 	conn.User(conn.Me.Ident, conn.Me.Name)
-
-	go conn.runLoop()
 	return nil
+}
+
+// Post-connection setup (for ease of testing)
+func (conn *Conn) postConnect() {
+	conn.io = bufio.NewReadWriter(
+		bufio.NewReader(conn.sock),
+		bufio.NewWriter(conn.sock))
+	conn.sock.SetTimeout(conn.Timeout * second)
+	go conn.send()
+	go conn.recv()
+	go conn.runLoop()
 }
 
 // dispatch a nicely formatted os.Error to the error channel
@@ -191,9 +204,10 @@ func (conn *Conn) recv() {
 			fmt.Println(t.Format(conn.TSFormat) + " <- " + s)
 		}
 
-		line := parseLine(s)
-		line.Time = t
-		conn.in <- line
+		if line := parseLine(s); line != nil {
+			line.Time = t
+			conn.in <- line
+		}
 	}
 }
 
@@ -202,7 +216,7 @@ func (conn *Conn) runLoop() {
 	for {
 		select {
 		case line := <-conn.in:
-			conn.dispatchEvent(line)
+			conn.Dispatcher.Dispatch(line.Cmd, conn, line)
 		case <-conn.cLoop:
 			// strobe on control channel, bail out
 			return
@@ -250,12 +264,12 @@ func (conn *Conn) rateLimit(chars int64) {
 func (conn *Conn) shutdown() {
 	// Guard against double-call of shutdown() if we get an error in send()
 	// as calling sock.Close() will cause recv() to recieve EOF in readstring()
-	if conn.connected {
-		conn.connected = false
+	if conn.Connected {
+		conn.Connected = false
 		conn.sock.Close()
 		conn.cSend <- true
 		conn.cLoop <- true
-		conn.dispatchEvent(&Line{Cmd: "DISCONNECTED"})
+		conn.Dispatcher.Dispatch("disconnected", conn, &Line{})
 		// reinit datastructures ready for next connection
 		// do this here rather than after runLoop()'s for due to race
 		conn.initialise()
@@ -267,7 +281,7 @@ func (conn *Conn) shutdown() {
 func (conn *Conn) String() string {
 	str := "GoIRC Connection\n"
 	str += "----------------\n\n"
-	if conn.connected {
+	if conn.Connected {
 		str += "Connected to " + conn.Host + "\n\n"
 	} else {
 		str += "Not currently connected!\n\n"

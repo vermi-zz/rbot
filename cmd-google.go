@@ -13,6 +13,7 @@ import (
 	"json"
 	"regexp"
 	"strconv"
+	"url"
 	"utf8"
 )
 
@@ -39,19 +40,19 @@ func translate(conn *irc.Conn, nick *irc.Nick, args, target string) {
 		}
 	}
 
-	var url string
+	var url_ string
 	if langPairs.Len() > 0 {
 		// translate
 		langPairsSlice := []string(langPairs)
-		url = fmt.Sprintf("http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s%s&key=%s",
-			http.URLEscape(args), strings.Join(langPairsSlice, ""), googleAPIKey)
+		url_ = fmt.Sprintf("http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s%s&key=%s",
+			url.QueryEscape(args), strings.Join(langPairsSlice, ""), googleAPIKey)
 	} else {
 		// language detect
-		url = fmt.Sprintf("http://ajax.googleapis.com/ajax/services/language/detect?v=1.0&q=%s&key=%s",
-			http.URLEscape(args), googleAPIKey)
+		url_ = fmt.Sprintf("http://ajax.googleapis.com/ajax/services/language/detect?v=1.0&q=%s&key=%s",
+			url.QueryEscape(args), googleAPIKey)
 	}
 
-	response, err := http.Get(url)
+	response, err := http.Get(url_)
 	if err != nil {
 		say(conn, target, "%s: Error while requesting translation", nick.Nick)
 		return
@@ -113,10 +114,10 @@ func roman(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if targetlang == "" {
 		targetlang = "ja"
 	}
-	url := fmt.Sprintf("http://translate.google.com/translate_a/t?client=t&hl=%s&sl=%s&tl=en-US&text=%s",
-		targetlang, sourcelang, http.URLEscape(args))
+	url_ := fmt.Sprintf("http://translate.google.com/translate_a/t?client=t&hl=%s&sl=%s&tl=en-US&text=%s",
+		targetlang, sourcelang, url.QueryEscape(args))
 
-	b, err := getUserAgent(url)
+	b, err := getUserAgent(url_)
 	if err != nil {
 		say(conn, target, "%s: Error while requesting romanization", nick.Nick)
 		return
@@ -149,9 +150,9 @@ func calc(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if args == "" {
 		return
 	}
-	url := fmt.Sprintf("http://www.google.com/ig/calculator?hl=en&q=%s&key=%s", http.URLEscape(args), googleAPIKey)
+	url_ := fmt.Sprintf("http://www.google.com/ig/calculator?hl=en&q=%s&key=%s", url.QueryEscape(args), googleAPIKey)
 
-	b, err := getUserAgent(url)
+	b, err := getUserAgent(url_)
 	if err != nil {
 		say(conn, target, "%s: Error while requesting calculation", nick.Nick)
 		return
@@ -201,12 +202,12 @@ func parseCalc(output string) string {
 // make a GET request with a fake user agent
 // this is definitely not for those undocumented Google APIs
 func getUserAgent(urlstr string) ([]byte, os.Error) {
-	url, err := http.ParseURL(urlstr)
+	url_, err := url.Parse(urlstr)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := net.Dial("tcp", url.Host+":http")
+	conn, err := net.Dial("tcp", url_.Host+":http")
 	if err != nil {
 		return nil, err
 	}

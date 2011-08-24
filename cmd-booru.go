@@ -4,6 +4,7 @@ import (
 	irc "github.com/fluffle/goirc/client"
 	"fmt"
 	"http"
+	"url"
 	"xml"
 )
 
@@ -26,26 +27,26 @@ func booruDoSearch(conn *irc.Conn, channel string, site string) (status string) 
 		Response FirstResponse
 	}
 
-	var url IbSearch
+	var url_ IbSearch
 
-	err = xml.Unmarshal(stuff.Body, &url)
+	err = xml.Unmarshal(stuff.Body, &url_)
 	if err != nil {
 		return "FAIL"
 	}
 
 	rating := ""
 	switch {
-	case url.Response.Response.Rating == "s":
+	case url_.Response.Response.Rating == "s":
 		rating = "[Supposedly Safe] "
-	case url.Response.Response.Rating == "q":
+	case url_.Response.Response.Rating == "q":
 		rating = "[Questionable] "
-	case url.Response.Response.Rating == "e":
+	case url_.Response.Response.Rating == "e":
 		rating = "[Explicit] "
-	case url.Response.Response.Rating == "0":
+	case url_.Response.Response.Rating == "0":
 		rating = "[Not Rated] "
 	}
 
-	result := rating + shorten(url.Response.Response.File_url)
+	result := rating + shorten(url_.Response.Response.File_url)
 
 	say(conn, channel, result)
 
@@ -61,7 +62,7 @@ func booruSearch(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 		return
 	}
 
-	tag = http.URLEscape(tag)
+	tag = url.QueryEscape(tag)
 	site := fmt.Sprintf("http://ibsearch.i-forge.net/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
 	status := "FAIL"
@@ -79,7 +80,7 @@ func booruSearch(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 
 func booruFuta(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	tag = "futa futanari -futaba*"
-	tag = http.URLEscape(tag)
+	tag = url.QueryEscape(tag)
 	site := fmt.Sprintf("http://ibsearch.i-forge.net/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
 	status := booruDoSearch(conn, channel, site)
@@ -94,7 +95,7 @@ func booruFuta(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 
 func booruLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	tag = "loli*"
-	tag = http.URLEscape(tag)
+	tag = url.QueryEscape(tag)
 	site := fmt.Sprintf("http://ibsearch.i-forge.net/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
 	status := booruDoSearch(conn, channel, site)
@@ -109,7 +110,7 @@ func booruLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 
 func booruSafeLoli(conn *irc.Conn, nick *irc.Nick, tag string, channel string) {
 	tag = "+loli* rating:s"
-	tag = http.URLEscape(tag)
+	tag = url.QueryEscape(tag)
 	site := fmt.Sprintf("http://ibsearch.i-forge.net/?action=randimage&randimage[phrase]=%s&format=xml", tag)
 
 	status := booruDoSearch(conn, channel, site)

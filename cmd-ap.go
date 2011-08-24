@@ -5,14 +5,15 @@ import (
 	config "goconfig"
 	"http"
 	"strings"
+	"url"
 )
 
 const apConfigFile = "ap.conf"
 
 func apUserExists(username string) (isuser bool) {
-	url := "http://www.anime-planet.com/users/" + http.URLEscape(username)
+	url_ := "http://www.anime-planet.com/users/" + url.QueryEscape(username)
 
-	r, err := http.Head(url)
+	r, err := http.Head(url_)
 
 	if err != nil {
 		return false

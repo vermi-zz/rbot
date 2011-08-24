@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"json"
 	"io/ioutil"
+	"url"
 	"xml"
 	"strings"
 )
@@ -13,10 +14,10 @@ func shorten(long string) (short string) {
 	key := "R_e659dbb5514e34edc3540a7c95b0041b"
 	login := "jvermillion"
 
-	long = http.URLEscape(long)
+	long = url.QueryEscape(long)
 
-	url := fmt.Sprintf("http://api.bit.ly/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=json", login, key, long)
-	r, err := http.Get(url)
+	url_ := fmt.Sprintf("http://api.bit.ly/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=json", login, key, long)
+	r, err := http.Get(url_)
 	defer r.Body.Close()
 
 	if err != nil {
@@ -44,10 +45,10 @@ func expand(short string) (long string) {
 	key := "R_e659dbb5514e34edc3540a7c95b0041b"
 	login := "jvermillion"
 
-	short = http.URLEscape(short)
+	short = url.QueryEscape(short)
 
-	url := fmt.Sprintf("http://api.bit.ly/v3/expand?login=%s&apiKey=%s&shortUrl=%s&format=xml", login, key, short)
-	r, err := http.Get(url)
+	url_ := fmt.Sprintf("http://api.bit.ly/v3/expand?login=%s&apiKey=%s&shortUrl=%s&format=xml", login, key, short)
+	r, err := http.Get(url_)
 	defer r.Body.Close()
 
 	if err != nil {

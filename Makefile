@@ -7,17 +7,21 @@ include $(GOROOT)/src/Make.inc
 TARG=rbot
 GOFILES=rbot.go handler.go auth.go cmd-access.go cmd-admin.go cmd-op.go cmd-google.go stream.go
 pkgdir=$(QUOTED_GOROOT)/pkg/$(GOOS)_$(GOARCH)
-PREREQ=$(pkgdir)/github.com/fluffle/goirc/client.a $(pkgdir)/goconfig.a
+PREREQ=$(pkgdir)/github.com/fluffle/goirc/event.a $(pkgdir)/github.com/fluffle/goirc/client.a $(pkgdir)/goconfig.a
 
 all: rbot.conf auth.conf
 
-.PHONY: client goconfig
+.PHONY: event client goconfig
 
+$(pkgdir)/github.com/fluffle/goirc/event.a: event
+	@true
 $(pkgdir)/github.com/fluffle/goirc/client.a: client
 	@true
 $(pkgdir)/goconfig.a: goconfig
 	@true
 
+event:
+	$(MAKE) -sC event install
 client:
 	$(MAKE) -sC client install
 goconfig:
@@ -43,11 +47,13 @@ auth.conf: auth.conf.example
 
 clean: clean-deps
 clean-deps:
+	$(MAKE) -C event clean
 	$(MAKE) -C client clean
 	$(MAKE) -C goconfig clean
 
 nuke: nuke-deps
 nuke-deps:
+	$(MAKE) -C event nuke
 	$(MAKE) -C client nuke
 	$(MAKE) -C goconfig nuke
 

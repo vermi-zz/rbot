@@ -78,8 +78,10 @@ func connect(network string) {
 		if err := c.Connect(server); err != nil {
 			fmt.Printf("Connection error: %s\n", err)
 		}
-		for err := range c.Err {
-			fmt.Printf("goirc error: %s\n", err)
+		for c.Connected {
+			if err := <-c.Err; err != nil {
+				fmt.Printf("goirc error: %s", err)
+			}
 		}
 		time.Sleep(30000000000) // 30 seconds
 	}

@@ -63,9 +63,18 @@ func pollJustinTv() []string {
 	}
 	live := make([]string, 0)
 	for _, r := range(result) {
-		data := r.(map[string]interface{})
-		channel := data["channel"].(map[string]interface{})
-		username := channel["login"].(string)
+		data, ok := r.(map[string]interface{})
+		if !ok {
+			return nil
+		}
+		channel, ok := data["channel"].(map[string]interface{})
+		if !ok {
+			return nil
+		}
+		username, ok := channel["login"].(string)
+		if !ok {
+			return nil
+		}
 		newStreams[username] = true
 		if !justinTv[username] {
 			live = append(live, username)

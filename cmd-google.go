@@ -9,90 +9,35 @@ import (
 	"net"
 	"url"
 	"io/ioutil"
-	"container/vector"
 	"html"
-	"json"
 	"regexp"
 	"strconv"
 	"utf8"
 )
 
-const googleAPIKey = "ABQIAAAA6-N_jl4ETgtMf2M52JJ_WRQjQjNunkAJHIhTdFoxe8Di7fkkYhRRcys7ZxNbH3MIy_MKKcEO4-9_Ag"
+func tr(conn *irc.Conn, nick *irc.Nick, args, target string) {
+	if args == "" {
+		return
+	}
 
-func translate(conn *irc.Conn, nick *irc.Nick, args, target string) {
-	var langPairs vector.StringVector
-	for {
-		field := strings.IndexAny(args, " 　") // handle spaces and ideographic spaces (U+3000)
-		if field != -1 {
-			first := args[:field]
-			if len(first) == 5 && first[2] == '|' {
-				langPairs.Push("&langpair=" + first)
-				if args[field] == ' ' {
-					args = args[field+1:]
-				} else {
-					args = args[field+utf8.RuneLen(3000):]
-				}
-			} else {
-				break
-			}
+	var sourcelang, targetlang, text string
+
+	index := strings.IndexAny(args, " 　") // handle spaces and ideographic spaces (U+3000)
+	if index == 5 && args[2] == '|' {
+		sourcelang = args[:2]
+		targetlang = args[3:5]
+		if args[5] == ' ' {
+			text = args[6:]
 		} else {
-			break
+			text = args[5 + utf8.RuneLen(3000):]
 		}
-	}
-
-	var uri string
-	if langPairs.Len() > 0 {
-		// translate
-		langPairsSlice := []string(langPairs)
-		uri = fmt.Sprintf("http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s%s&key=%s",
-		                   url.QueryEscape(args), strings.Join(langPairsSlice, ""), googleAPIKey)
 	} else {
-		// language detect
-		uri = fmt.Sprintf("http://ajax.googleapis.com/ajax/services/language/detect?v=1.0&q=%s&key=%s",
-		                   url.QueryEscape(args), googleAPIKey)
+		sourcelang = "auto"
+		targetlang = "en"
+		text = args
 	}
 
-	response, err := http.Get(uri)
-	if err != nil {
-		say(conn, target, "%s: Error while requesting translation", nick.Nick); return
-	}
-	defer response.Body.Close()
-	b, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		say(conn, target, "%s: Error while downloading translation", nick.Nick); return
-	}
-
-	var result map[string]interface{}
-	err = json.Unmarshal(b, &result)
-	if err != nil {
-		say(conn, target, "%s: Error while decoding translation", nick.Nick); return
-	}
-	if result["responseStatus"] != float64(200) {
-		say(conn, target, "%s: %s", nick.Nick, result["responseDetails"]); return
-	}
-
-	if langPairs.Len() > 0 {
-		// translate
-		sayTr(conn, target, result["responseData"])
-	} else {
-		// language detect
-		var data map[string]interface{} = result["responseData"].(map[string]interface{})
-		say(conn, target, "Language: %s, confidence: %f, is reliable: %t", data["language"], data["confidence"], data["isReliable"])
-	}
-}
-
-func sayTr(conn *irc.Conn, target string, data interface{}) {
-	switch t := data.(type) {
-	case []interface{}:
-		var dataList []interface{} = data.([]interface{})
-		for _, d := range dataList {
-			var innerData map[string]interface{} = d.(map[string]interface{})
-			sayTr(conn, target, innerData["responseData"])
-		}
-	case map[string]interface{}:
-		trText := data.(map[string]interface{})["translatedText"].(string)
-		say(conn, target, html.UnescapeString(trText))
-	}
+	say(conn, target, translate(sourcelang, targetlang, text))
 }
 
 func roman(conn *irc.Conn, nick *irc.Nick, args, target string) {
@@ -110,41 +55,51 @@ func roman(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if targetlang == "" {
 		targetlang = "ja"
 	}
+	say(conn, target, translate(sourcelang, targetlang, args))
+}
+
+func translate(sourcelang, targetlang, text string) string {
 	uri := fmt.Sprintf("http://translate.google.com/translate_a/t?client=t&hl=%s&sl=%s&tl=en-US&text=%s",
-		targetlang, sourcelang, url.QueryEscape(args))
+		targetlang, sourcelang, url.QueryEscape(text))
 
 	b, err := getUserAgent(uri)
 	if err != nil {
-		say(conn, target, "%s: Error while requesting romanization", nick.Nick); return
+		return "Error while requesting translation"
 	}
 
-	result := strings.SplitN(string(b), `"`, 7)
-	if len(result) < 7 {
-		say(conn, target, "%s: Error while parsing romanization", nick.Nick); return
+	result := strings.SplitN(string(b), `"`, 11)
+	if len(result) < 11 {
+		return "Error while parsing translation"
 	}
 
-	if (sourcelang == "en" && !strings.Contains(args, " ")) {
-		// Google duplicates when there is only one source word
-		source := utf8.NewString(result[1])
-		romanized := utf8.NewString(result[5])
-		source_left := source.Slice(0, source.RuneCount()/2)
-		source_right := source.Slice(source.RuneCount()/2, source.RuneCount())
-		romanized_left := romanized.Slice(0, romanized.RuneCount()/2)
-		romanized_right :=romanized.Slice(romanized.RuneCount()/2, romanized.RuneCount())
-		if (source_left == source_right &&
-			strings.ToLower(romanized_left) == strings.ToLower(romanized_right)) {
-			say(conn, target, "%s: %s", source_left, romanized_left)
-			return
+	if sourcelang == "auto" {
+		return result[9]
+	}
+
+	source := utf8.NewString(result[1])
+	romanized := utf8.NewString(result[5])
+	if romanized.RuneCount() > 0 {
+		if sourcelang == "en" && !strings.Contains(text, " ") {
+			// Google duplicates when there is only one source word
+			source_left := source.Slice(0, source.RuneCount()/2)
+			source_right := source.Slice(source.RuneCount()/2, source.RuneCount())
+			romanized_left := romanized.Slice(0, romanized.RuneCount()/2)
+			romanized_right :=romanized.Slice(romanized.RuneCount()/2, romanized.RuneCount())
+			if (source_left == source_right &&
+				strings.ToLower(romanized_left) == strings.ToLower(romanized_right)) {
+				return fmt.Sprintf( "%s: %s", source_left, romanized_left)
+			}
 		}
+		return fmt.Sprintf("%s: %s", source, romanized)
 	}
-	say(conn, target, "%s: %s", result[1], result[5])
+	return source.String()
 }
 
 func calc(conn *irc.Conn, nick *irc.Nick, args, target string) {
 	if args == "" {
 		return
 	}
-	uri := fmt.Sprintf("http://www.google.com/ig/calculator?hl=en&q=%s&key=%s", url.QueryEscape(args), googleAPIKey)
+	uri := fmt.Sprintf("http://www.google.com/ig/calculator?hl=en&q=%s", url.QueryEscape(args))
 
 	b, err := getUserAgent(uri)
 	if err != nil {

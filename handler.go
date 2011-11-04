@@ -50,7 +50,7 @@ var commands = map[string]func(*irc.Conn, *irc.Nick, string, string){
 	"ops":         highlightOps,
 
 	// google
-	"tr":    translate,
+	"tr": tr,
 	"roman": roman,
 	"calc":  calc,
 
@@ -115,8 +115,9 @@ func handlePrivmsg(conn *irc.Conn, line *irc.Line) {
 		// message to a channel
 		if !command(conn, nick, line.Args[1], target) {
 			var video string
-			if start := strings.Index(line.Args[1], "youtube.com/watch?v="); start > -1 {
-				video = line.Args[1][start+20:]
+			if start := strings.Index(line.Args[1], "youtube.com/watch?"); start > -1 {
+				start = strings.Index(line.Args[1], "v=")
+				video = line.Args[1][start+2:]
 			}
 			if start := strings.Index(line.Args[1], "youtu.be/"); start > -1 {
 				video = line.Args[1][start+9:]

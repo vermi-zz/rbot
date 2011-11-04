@@ -89,7 +89,7 @@ Op commands:
 Google API commands:
 
 - `tr text`: detect the language of text
-- `tr en|ja en|es text`: translate text into Japanese and Spanish
+- `tr en|ja text`: translate text into Japanese
 - `roman text`: translate text into romaji (see rbot.conf.example)
 - `calc 1 usd in yen`: convert 1 USD to Japanese yen
 
